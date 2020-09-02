@@ -1,0 +1,161 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "sex on the beach",
+            "modelConfiguration": {
+                "fallbackIntentSensitivity": {
+                    "level": "LOW"
+                }
+            },
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AskForCocktail",
+                    "slots": [
+                        {
+                            "name": "request",
+                            "type": "request",
+                            "samples": [
+                                "look up {request}",
+                                "{request}"
+                            ]
+                        },
+                        {
+                            "name": "cocktail",
+                            "type": "AMAZON.Drink",
+                            "samples": [
+                                "{request} for {cocktail}",
+                                "{cocktail}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "search for {request} of {cocktail}",
+                        "give me the {request} for {cocktail}"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "alcoholic",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "without alcohol"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "with alcohol"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "non alcoholic"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "alcoholic"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "request",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "ingredients and recipe"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "recipe and ingredients"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "ingredients"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "recipe"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "dialog": {
+            "intents": [
+                {
+                    "name": "AskForCocktail",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "request",
+                            "type": "request",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.840061674831.1561456036119"
+                            }
+                        },
+                        {
+                            "name": "cocktail",
+                            "type": "AMAZON.Drink",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.840061674831.444849601174"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "delegationStrategy": "ALWAYS"
+        },
+        "prompts": [
+            {
+                "id": "Elicit.Slot.840061674831.444849601174",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "which cocktail do you want me to look up?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.840061674831.1561456036119",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "what do you want me to look up, a recipe, ingredients or both?"
+                    }
+                ]
+            }
+        ]
+    }
+}
