@@ -31,7 +31,7 @@ from ask_sdk_model.slu.entityresolution import StatusCode
 
 
 
-logging.basicConfig(filename='wetterfrosch_log.log',
+logging.basicConfig(filename='dm_projekt_log.log',
                     level=logging.INFO,
                     format='%(asctime)s %(levelname)s: %(message)s'
                     )
@@ -50,7 +50,6 @@ class LaunchRequestHandler(AbstractRequestHandler):
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
         speech_text = "Welcome to Sex on the beach"
-
         reprompt = 'Ask me for cocktail recipes.'
         handler_input.response_builder.speak(speech_text).ask(reprompt).set_should_end_session(
             False)
@@ -60,27 +59,61 @@ class LaunchRequestHandler(AbstractRequestHandler):
 class AskForCocktailRequestHandler(AbstractRequestHandler):
     """ Handler for AskForCocktail intent, builds an Alexa response with
         ingredients, recipe or both for the asked cocktail"""
+
     def can_handle(self, handler_input):
         return is_intent_name("AskForCocktail")(handler_input)
-    
+
     def handle(self, handler_input):
         filled_slots = handler_input.request_envelope.request.intent.slots
         slot_values = get_slot_values(filled_slots)
         request_type = slot_values['request']['resolved']
         drink = slot_values['cocktail']['resolved']
         logging.info(slot_values)
-        # villt ne fuktion schreiben hierfür, je nachdem was wir bei den anderen intents so doppelt machen...
+        api_request = build_url(api, 's', drink)
+        # Sollten wir echt irgendwie in Funktionen teilen
         if request_type == 'recipe':
-            pass
+            request_key = 'strInstructions'
+            logging.info(request_key)
         elif request_type == 'ingredients':
-            pass
+            request_key = ['strIngredient' + str(i) for i in range(1, 16)]
+            logging.info(request_key)
         else: # both
-            pass
+            request_key = (['strIngredient' + str(i) for i in range(1, 16)],
+                   'strInstructions')
+            logging.info(request_key)
         try:
-            #response = http_get(api_request)
-            #logging.info(response)
-            # dumme response zum testen
-            speech = f'You asked me for the {request_type} for {drink}.'
+            response = http_get(api_request)
+            logging.info(response)
+            if type(request_key) == str:
+                instructions = response['drinks'][0][request_key]
+                speech = f'Here are the instructions for a {drink}. {instructions}'
+            elif type(request_key) == list:
+                n_ingredients = 0
+                ingredients = []
+                for ingredient_key in request_key:
+                    ingredient = response['drinks'][0][ingredient_key]
+                    if ingredient is None:
+                        break
+                    else:
+                        ingredients.append(ingredient)
+                        n_ingredients += 1
+                ing_str = ', '.join(ingredients)
+                speech = f'You need {n_ingredients} ingredients for a {drink}. {ing_str}'
+            elif type(request_key) == tuple:
+                instructions = response['drinks'][0][request_key[1]]
+                n_ingredients = 0
+                ingredients = []
+                for ingredient_key in request_key[0]:
+                    ingredient = response['drinks'][0][ingredient_key]
+                    if ingredient is None:
+                        break
+                    else:
+                        ingredients.append(ingredient)
+                        n_ingredients += 1
+                ing_str = ', '.join(ingredients)
+                speech = f'You need {n_ingredients} ingredients for a {drink}. {ing_str}. {instructions}'
+            else:
+                logging.info(request_key)
         except Exception as e:
             speech = (f'I am sorry, I don\'t know any information about {drink}')
             logging.info("Intent: {}: message: {}".format(
@@ -120,13 +153,12 @@ class CancelOrStopIntentHandler(AbstractRequestHandler):
         return handler_input.response_builder.response
 
 
-
-
 class FallbackIntentHandler(AbstractRequestHandler):
     """AMAZON.FallbackIntent is only available in en-US locale.
     This handler will not be triggered except in that locale,
     so it is safe to deploy on any locale.
     """
+
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
         return is_intent_name("AMAZON.FallbackIntent")(handler_input)
@@ -158,6 +190,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 
     This handler catches all kinds of exceptions and prints
     the stack trace on AWS Cloudwatch with the request envelope."""
+
     def can_handle(self, handler_input, exception):
         # type: (HandlerInput, Exception) -> bool
         return True
@@ -188,7 +221,7 @@ class ResponseLogger(AbstractResponseInterceptor):
         # type: (HandlerInput, Response) -> None
         logging.info("Response: {}".format(response))
 
-
+api = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?{}={}'
 
 def get_slot_values(filled_slots):
     """Return slot values with additional info."""
@@ -223,18 +256,16 @@ def get_slot_values(filled_slots):
             }
     return slot_values
 
-def build_url(api, key, lat, lon):
+
+def build_url(api, search_category, search_word):
     """Return options for HTTP Get call."""
-    if (lat is not None and lon is not None):
-        url = api.format(lat, lon, key)
-        return url
-    else:
-        logging.error('Invalid url. Latitute and/or longitude unavailable')
-        return None
+    url = api.format(search_category, search_word)
+    return url
+
 
 def http_get(url):
     response = requests.get(url)
-    logging.info(url)
+    logging.info('API request with: {}'.format(url))
     if response.status_code < 200 or response.status_code >= 300:
         response.raise_for_status()
     return response.json()
