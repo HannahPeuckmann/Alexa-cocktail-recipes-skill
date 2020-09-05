@@ -27,7 +27,9 @@ from ask_sdk_model import (
     Response, IntentRequest, DialogState, SlotConfirmationStatus, Slot)
 from ask_sdk_model.slu.entityresolution import StatusCode
 
-
+from basic_handlers import HelpIntentHandler, CancelOrStopIntentHandler, \
+                           FallbackIntentHandler, SessionEndedRequestHandler, \
+                           CatchAllExceptionHandler, RequestLogger, ResponseLogger
 
 
 
@@ -70,50 +72,11 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
         drink = slot_values['cocktail']['resolved']
         logging.info(slot_values)
         api_request = build_url(api, 's', drink)
-        # Sollten wir echt irgendwie in Funktionen teilen
-        if request_type == 'recipe':
-            request_key = 'strInstructions'
-            logging.info(request_key)
-        elif request_type == 'ingredients':
-            request_key = ['strIngredient' + str(i) for i in range(1, 16)]
-            logging.info(request_key)
-        else: # both
-            request_key = (['strIngredient' + str(i) for i in range(1, 16)],
-                   'strInstructions')
-            logging.info(request_key)
+        request_key = parse_request(request_type)
         try:
             response = http_get(api_request)
             logging.info(response)
-            if type(request_key) == str:
-                instructions = response['drinks'][0][request_key]
-                speech = f'Here are the instructions for a {drink}. {instructions}'
-            elif type(request_key) == list:
-                n_ingredients = 0
-                ingredients = []
-                for ingredient_key in request_key:
-                    ingredient = response['drinks'][0][ingredient_key]
-                    if ingredient is None:
-                        break
-                    else:
-                        ingredients.append(ingredient)
-                        n_ingredients += 1
-                ing_str = ', '.join(ingredients)
-                speech = f'You need {n_ingredients} ingredients for a {drink}. {ing_str}'
-            elif type(request_key) == tuple:
-                instructions = response['drinks'][0][request_key[1]]
-                n_ingredients = 0
-                ingredients = []
-                for ingredient_key in request_key[0]:
-                    ingredient = response['drinks'][0][ingredient_key]
-                    if ingredient is None:
-                        break
-                    else:
-                        ingredients.append(ingredient)
-                        n_ingredients += 1
-                ing_str = ', '.join(ingredients)
-                speech = f'You need {n_ingredients} ingredients for a {drink}. {ing_str}. {instructions}'
-            else:
-                logging.info(request_key)
+            speech = build_response(request_key, response, drink)
         except Exception as e:
             speech = (f'I am sorry, I don\'t know any information about {drink}')
             logging.info("Intent: {}: message: {}".format(
@@ -122,106 +85,58 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
         return handler_input.response_builder.response
 
 
-class HelpIntentHandler(AbstractRequestHandler):
-    """Handler for Help Intent."""
-
-    def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
-        return is_request_type("AMAZON.HelpIntent")(handler_input)
-
-    def handle(self, handler_input):
-        # type: (HandlerInput) -> Response
-        speech_text = "Ask me for a cocktail recipe."
-
-        handler_input.response_builder.speak(speech_text).ask(
-            speech_text)
-        return handler_input.response_builder.response
-
-
-class CancelOrStopIntentHandler(AbstractRequestHandler):
-    """Single handler for Cancel and Stop Intent."""
-
-    def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
-        return (is_intent_name("AMAZON.CancelIntent")(handler_input) or
-                is_intent_name("AMAZON.StopIntent")(handler_input))
-
-    def handle(self, handler_input):
-        # type: (HandlerInput) -> Response
-        speech_text = "See you!"
-        handler_input.response_builder.speak(speech_text)
-        return handler_input.response_builder.response
-
-
-class FallbackIntentHandler(AbstractRequestHandler):
-    """AMAZON.FallbackIntent is only available in en-US locale.
-    This handler will not be triggered except in that locale,
-    so it is safe to deploy on any locale.
-    """
-
-    def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
-        return is_intent_name("AMAZON.FallbackIntent")(handler_input)
-
-    def handle(self, handler_input):
-        # type: (HandlerInput) -> Response
-        speech_text = (
-            "Sex on the beach can't help you with that.")
-        reprompt = "You can search for cocktails by an ingredient or by name."
-        handler_input.response_builder.speak(speech_text).ask(reprompt)
-        return handler_input.response_builder.response
-
-
-class SessionEndedRequestHandler(AbstractRequestHandler):
-    """Handler for Session End."""
-
-    def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
-        return is_request_type("SessionEndedRequest")(handler_input)
-
-    def handle(self, handler_input):
-        # type: (HandlerInput) -> Response
-        return handler_input.response_builder.response
-
-
-# Exception Handler classes
-class CatchAllExceptionHandler(AbstractExceptionHandler):
-    """Catch All Exception handler.
-
-    This handler catches all kinds of exceptions and prints
-    the stack trace on AWS Cloudwatch with the request envelope."""
-
-    def can_handle(self, handler_input, exception):
-        # type: (HandlerInput, Exception) -> bool
-        return True
-
-    def handle(self, handler_input, exception):
-        # type: (HandlerInput, Exception) -> Response
-        logging.error(exception, exc_info=True)
-
-        speech = "I cant handle this request, sorry."
-        handler_input.response_builder.speak(speech).ask(speech)
-        return handler_input.response_builder.response
-
-
-# Request and Response Loggers
-class RequestLogger(AbstractRequestInterceptor):
-    """Log the request envelope."""
-
-    def process(self, handler_input):
-        # type: (HandlerInput) -> None
-        logging.info("Request Envelope: {}".format(
-            handler_input.request_envelope))
-
-
-class ResponseLogger(AbstractResponseInterceptor):
-    """Log the response envelope."""
-
-    def process(self, handler_input, response):
-        # type: (HandlerInput, Response) -> None
-        logging.info("Response: {}".format(response))
 
 api = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?{}={}'
+
+
+### build_response und parse_request sind noch bissel zu speziefisch für den einen Intent gebaut, 
+### erweiten, bzw umstrukturieren wenn weitere intents da sind
+def build_response(request_key, response, drink):
+    if type(request_key) == str:
+        instructions = response['drinks'][0][request_key]
+        speech = f'Here are the instructions for a {drink}. {instructions}'
+    elif type(request_key) == list:
+        n_ingredients = 0
+        ingredients = []
+        for ingredient_key in request_key:
+            ingredient = response['drinks'][0][ingredient_key]
+            if ingredient is None:
+                break
+            else:
+                ingredients.append(ingredient)
+                n_ingredients += 1
+        ing_str = ', '.join(ingredients)
+        speech = f'You need {n_ingredients} ingredients for a {drink}. {ing_str}'
+    elif type(request_key) == tuple:
+        instructions = response['drinks'][0][request_key[1]]
+        n_ingredients = 0
+        ingredients = []
+        for ingredient_key in request_key[0]:
+            ingredient = response['drinks'][0][ingredient_key]
+            if ingredient is None:
+                break
+            else:
+                ingredients.append(ingredient)
+                n_ingredients += 1
+        ing_str = ', '.join(ingredients)
+        speech = f'You need {n_ingredients} ingredients for a {drink}. {ing_str}. {instructions}'
+    else:
+        logging.info(request_key)
+    return speech
+
+def parse_request(request_type):
+    if request_type == 'recipe':
+        request_key = 'strInstructions'
+        logging.info(request_key)
+    elif request_type == 'ingredients':
+        request_key = ['strIngredient' + str(i) for i in range(1, 16)]
+        logging.info(request_key)
+    else: # both
+        request_key = (['strIngredient' + str(i) for i in range(1, 16)],
+               'strInstructions')
+        logging.info(request_key)
+    return request_key
+
 
 def get_slot_values(filled_slots):
     """Return slot values with additional info."""
