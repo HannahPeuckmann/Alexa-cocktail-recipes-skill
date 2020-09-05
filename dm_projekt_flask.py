@@ -66,6 +66,7 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
         return is_intent_name("AskForCocktail")(handler_input)
 
     def handle(self, handler_input):
+        logging.info('In AskForCocktailRequestHandler')
         filled_slots = handler_input.request_envelope.request.intent.slots
         slot_values = get_slot_values(filled_slots)
         request_type = slot_values['request']['resolved']
@@ -84,6 +85,94 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
         handler_input.response_builder.speak(speech).set_should_end_session(False)
         return handler_input.response_builder.response
 
+
+class RandomCocktailIntentHandler(AbstractRequestHandler):
+    """Handler for random cocktail intent."""
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return is_intent_name('RandomCocktailIntent')(handler_input)
+
+    def handle(self, handler_input):
+        logging.info('In RandomCocktailIntentHandler')
+
+        attribute_manager = handler_input.attributes_manager
+        session_attr = attribute_manager.session_attributes
+
+        try:
+            response = http_get('https://www.thecocktaildb.com/api/json/v1/1/random.php')
+            cocktail = response['drinks'][0]['strDrink']
+            session_attr['random_cocktail'] = cocktail
+            session_attr['random_cocktail_ingredients'] = False
+            session_attr['random_cocktail_instructions'] = False
+            speech = f'How about a {cocktail}? Do you want to hear the ingredients?'
+        except Exception as e:
+            speech = (f'I am sorry, something went wrong.')
+            logging.info("Intent: {}: message: {}".format(
+                handler_input.request_envelope.request.intent.name, str(e)))
+        handler_input.response_builder.speak(speech).ask(speech)
+        return handler_input.response_builder.response
+
+
+class YesMoreInfoIntentHandler(AbstractRequestHandler):
+    """Handler for yes to get more info intent."""
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        session_attr = handler_input.attributes_manager.session_attributes
+        return (is_intent_name('AMAZON.YesIntent')(handler_input) and
+                'random_cocktail' in session_attr)
+
+    def handle(self, handler_input):
+        logging.info('In YesMoreInfoIntentHandler')
+
+        attribute_manager = handler_input.attributes_manager
+        session_attr = attribute_manager.session_attributes
+        drink = session_attr['random_cocktail']
+        api_request = build_url(api, 's', drink)
+        if session_attr['random_cocktail_ingredients'] is False:
+            session_attr['random_cocktail_ingredients'] = True
+            request_key = parse_request('ingredients')
+        elif session_attr['random_cocktail_instructions'] is False:
+            session_attr['random_cocktail_instructions'] = True
+            request_key = parse_request('recipe')
+        else:
+            request_key = parse_request('both')
+        try:
+            response = http_get(api_request)
+            speech = build_response(request_key, response, drink)
+        except Exception as e:
+            speech = (f'I am sorry, something went wrong.')
+            logging.info("Intent: {}: message: {}".format(
+                handler_input.request_envelope.request.intent.name, str(e)))
+        if session_attr['random_cocktail_instructions'] is True:
+            handler_input.response_builder.speak(
+                    speech).set_should_end_session(False)
+            return handler_input.response_builder.response
+        else:
+            speech = speech + ' Do you want to hear the instructions?'
+            handler_input.response_builder.speak(
+                    speech).ask(speech)
+            return handler_input.response_builder.response
+
+
+class NoMoreInfoIntentHandler(AbstractRequestHandler):
+    """Handler for no to get no more info intent."""
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        session_attr = handler_input.attributes_manager.session_attributes
+        return (is_intent_name("AMAZON.NoIntent")(handler_input) and
+                'random_cocktail' in session_attr)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        logging.info("In NoMoreInfoIntentHandler")
+
+        speech = ('Okay, maybe next time!')
+        handler_input.response_builder.speak(speech).set_should_end_session(
+            False)
+        return handler_input.response_builder.response
 
 
 api = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?{}={}'
@@ -187,6 +276,9 @@ def http_get(url):
 
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(AskForCocktailRequestHandler())
+sb.add_request_handler(RandomCocktailIntentHandler())
+sb.add_request_handler(YesMoreInfoIntentHandler())
+sb.add_request_handler(NoMoreInfoIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(FallbackIntentHandler())
