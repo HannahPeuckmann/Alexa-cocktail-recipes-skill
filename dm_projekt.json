@@ -49,10 +49,32 @@
                         }
                     ],
                     "samples": [
+                        "how do I make a {cocktail}",
                         "look up the {request} for {cocktail}",
                         "search for  the {request} of {cocktail}",
                         "give me the {request} for {cocktail}"
                     ]
+                },
+                {
+                    "name": "RandomCocktailIntent",
+                    "slots": [],
+                    "samples": [
+                        "Give me a cocktail idea",
+                        "Give me an idea for a cocktail",
+                        "I want a cocktail idea",
+                        "I want a random cocktail",
+                        "Give me a cocktail suggestion",
+                        "Give me a random cocktail",
+                        "I want a cocktail suggestion"
+                    ]
+                },
+                {
+                    "name": "AMAZON.YesIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NoIntent",
+                    "samples": []
                 }
             ],
             "types": [
