@@ -1,7 +1,6 @@
 import logging
-import requests  # for http request
+import requests # for http request
 import six
-import json
 from flask import Flask
 from ask_sdk_core.skill_builder import SkillBuilder
 from flask_ask_sdk.skill_adapter import SkillAdapter
@@ -14,9 +13,13 @@ from ask_sdk_core.handler_input import HandlerInput
 
 
 from ask_sdk_model import Response
+
+
 from ask_sdk_core.dispatch_components import (
     AbstractRequestHandler, AbstractExceptionHandler,
     AbstractResponseInterceptor, AbstractRequestInterceptor)
+
+
 from typing import Union, Dict, Any, List
 from ask_sdk_model.dialog import (
     ElicitSlotDirective, DelegateDirective)
@@ -26,8 +29,8 @@ from ask_sdk_model.slu.entityresolution import StatusCode
 
 from basic_handlers import HelpIntentHandler, CancelOrStopIntentHandler, \
                            FallbackIntentHandler, SessionEndedRequestHandler, \
-                           CatchAllExceptionHandler, RequestLogger, \
-                           ResponseLogger
+                           CatchAllExceptionHandler, RequestLogger, ResponseLogger
+
 
 
 logging.basicConfig(filename='dm_projekt_log.log',
@@ -39,7 +42,6 @@ logging.basicConfig(filename='dm_projekt_log.log',
 app = Flask(__name__)
 sb = SkillBuilder()
 
-
 class LaunchRequestHandler(AbstractRequestHandler):
     """Handler for Skill Launch."""
 
@@ -49,10 +51,10 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speech = get_speech('WELCOME_MSG')
-        reprompt = get_speech('WELCOME_REPROMT')
-        handler_input.response_builder.speak(
-            speech).ask(reprompt).set_should_end_session(False)
+        speech_text = "Welcome to Sex on the beach"
+        reprompt = 'Ask me for cocktail recipes.'
+        handler_input.response_builder.speak(speech_text).ask(reprompt).set_should_end_session(
+            False)
         return handler_input.response_builder.response
 
 
@@ -77,11 +79,10 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
             logging.info(response)
             speech = build_response(request_key, response, drink)
         except Exception as e:
-            speech = get_speech('COCKTAIL_EXCEPTION').format(drink)
+            speech = (f'I am sorry, I don\'t know any information about {drink}')
             logging.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
-        handler_input.response_builder.speak(
-            speech).set_should_end_session(False)
+        handler_input.response_builder.speak(speech).set_should_end_session(False)
         return handler_input.response_builder.response
 
 
@@ -99,17 +100,14 @@ class RandomCocktailIntentHandler(AbstractRequestHandler):
         session_attr = attribute_manager.session_attributes
 
         try:
-            response = http_get(
-                'https://www.thecocktaildb.com/api/json/v1/1/random.php')
-            drink = response['drinks'][0]['strDrink']
-            session_attr['random_cocktail'] = drink
+            response = http_get('https://www.thecocktaildb.com/api/json/v1/1/random.php')
+            cocktail = response['drinks'][0]['strDrink']
+            session_attr['random_cocktail'] = cocktail
             session_attr['random_cocktail_ingredients'] = False
             session_attr['random_cocktail_instructions'] = False
-            speech = '{}{}'.format(
-                get_speech('SUGGESTION_SPEECH').format(drink),
-                get_speech('ASK_INGREDIENTS'))
+            speech = f'How about a {cocktail}? Do you want to hear the ingredients?'
         except Exception as e:
-            speech = get_speech('GENERIC_EXCEPTION')
+            speech = (f'I am sorry, something went wrong.')
             logging.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
         handler_input.response_builder.speak(speech).ask(speech)
@@ -126,37 +124,21 @@ class YesMoreInfoIntentHandler(AbstractRequestHandler):
                 'random_cocktail' in session_attr)
 
     def handle(self, handler_input):
-        logging.info('In YesMoreInfoIntentHandler')
-
-        attribute_manager = handler_input.attributes_manager
-        session_attr = attribute_manager.session_attributes
+        logging.info('In YesMoreInfoIntentHandler, changing to AskForCocktailIntentHandler')
+        session_attr = handler_input.attributes_manager.session_attributes
         drink = session_attr['random_cocktail']
         api_request = build_url(api, 's', drink)
-        if session_attr['random_cocktail_ingredients'] is False:
-            session_attr['random_cocktail_ingredients'] = True
-            request_key = parse_request('ingredients')
-        elif session_attr['random_cocktail_instructions'] is False:
-            session_attr['random_cocktail_instructions'] = True
-            request_key = parse_request('recipe')
-        else:
-            request_key = parse_request('both')
+        request_key = parse_request('ingredients')
         try:
             response = http_get(api_request)
+            logging.info(response)
             speech = build_response(request_key, response, drink)
         except Exception as e:
             speech = get_speech('GENERIC_EXCEPTION')
             logging.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
-        if session_attr['random_cocktail_instructions'] is True:
-            handler_input.response_builder.speak(
-                    speech).set_should_end_session(False)
-            return handler_input.response_builder.response
-        else:
-            speech = speech + get_speech('ASK_INSTRUCTIONS')
-            handler_input.response_builder.speak(
-                    speech).ask(speech)
-            return handler_input.response_builder.response
-
+        handler_input.response_builder.speak(speech).set_should_end_session(False)
+        return handler_input.response_builder.response
 
 class NoMoreInfoIntentHandler(AbstractRequestHandler):
     """Handler for no to get no more info intent."""
@@ -171,7 +153,7 @@ class NoMoreInfoIntentHandler(AbstractRequestHandler):
         # type: (HandlerInput) -> Response
         logging.info("In NoMoreInfoIntentHandler")
 
-        speech = get_speech('ACCEPT_NO')
+        speech = ('Okay, maybe next time!')
         handler_input.response_builder.speak(speech).set_should_end_session(
             False)
         return handler_input.response_builder.response
@@ -180,13 +162,12 @@ class NoMoreInfoIntentHandler(AbstractRequestHandler):
 api = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?{}={}'
 
 
-### build_response und parse_request sind noch bissel zu speziefisch
-### für den einen Intent gebaut,
+### build_response und parse_request sind noch bissel zu speziefisch für den einen Intent gebaut, 
 ### erweiten, bzw umstrukturieren wenn weitere intents da sind
 def build_response(request_key, response, drink):
     if type(request_key) == str:
         instructions = response['drinks'][0][request_key]
-        speech = get_speech('GIVE_INSTRUCTIONS').format(drink, instructions)
+        speech = f'Here are the instructions for a {drink}. {instructions}'
     elif type(request_key) == list:
         n_ingredients = 0
         ingredients = []
@@ -197,10 +178,8 @@ def build_response(request_key, response, drink):
             else:
                 ingredients.append(ingredient)
                 n_ingredients += 1
-        ingredients_str = ', '.join(ingredients)
-        speech = get_speech('GIVE_INGREDIENTS').format(n_ingredients,
-                                                       drink,
-                                                       ingredients_str)
+        ing_str = ', '.join(ingredients)
+        speech = f'You need {n_ingredients} ingredients for a {drink}. {ing_str}'
     elif type(request_key) == tuple:
         instructions = response['drinks'][0][request_key[1]]
         n_ingredients = 0
@@ -212,15 +191,11 @@ def build_response(request_key, response, drink):
             else:
                 ingredients.append(ingredient)
                 n_ingredients += 1
-        ingredients_str = ', '.join(ingredients)
-        speech = get_speech('GIVE_INGREDIENTS').format(n_ingredients,
-                                                       drink,
-                                                       ingredients_str) + \
-            instructions
+        ing_str = ', '.join(ingredients)
+        speech = f'You need {n_ingredients} ingredients for a {drink}. {ing_str}. {instructions}'
     else:
         logging.info(request_key)
     return speech
-
 
 def parse_request(request_type):
     if request_type == 'recipe':
@@ -229,9 +204,9 @@ def parse_request(request_type):
     elif request_type == 'ingredients':
         request_key = ['strIngredient' + str(i) for i in range(1, 16)]
         logging.info(request_key)
-    else:  # both
+    else: # both
         request_key = (['strIngredient' + str(i) for i in range(1, 16)],
-                       'strInstructions')
+               'strInstructions')
         logging.info(request_key)
     return request_key
 
@@ -244,8 +219,7 @@ def get_slot_values(filled_slots):
     for key, slot_item in six.iteritems(filled_slots):
         name = slot_item.name
         try:
-            status_code = \
-                slot_item.resolutions.resolutions_per_authority[0].status.code
+            status_code = slot_item.resolutions.resolutions_per_authority[0].status.code
             if status_code == StatusCode.ER_SUCCESS_MATCH:
                 slot_values[name] = {
                     "synonym": slot_item.value,
@@ -260,14 +234,8 @@ def get_slot_values(filled_slots):
                 }
             else:
                 pass
-        except (AttributeError,
-                ValueError,
-                KeyError,
-                IndexError,
-                TypeError) as e:
-            logging.info(
-                "Couldn't resolve status_code for slot item: {}".format(
-                    slot_item))
+        except (AttributeError, ValueError, KeyError, IndexError, TypeError) as e:
+            logging.info("Couldn't resolve status_code for slot item: {}".format(slot_item))
             logging.info(e)
             slot_values[name] = {
                 "synonym": slot_item.value,
@@ -275,12 +243,6 @@ def get_slot_values(filled_slots):
                 "is_validated": False,
             }
     return slot_values
-
-
-def get_speech(prompt):
-    with open('strings.json') as strings:
-        string_data = json.load(strings)
-    return string_data[prompt]
 
 
 def build_url(api, search_category, search_word):
