@@ -1,0 +1,12 @@
+{
+	"WELCOME_MSG": "Welcome to Sex on the beach",
+	"WELCOME_REPROMT": "You can ask me for cocktail recipes.",
+	"COCKTAIL_EXCEPTION": "I am sorry, I don't have any information about {}",
+	"GENERIC_EXCEPTION": "I am sorry, something went wrong.",
+	"SUGGESTION_SPEECH": "How about a {}? ",
+	"ASK_INGREDIENTS": "Do you want to hear the ingredients list?",
+	"ASK_INSTRUCTIONS": "Do you want to hear the instructions?",
+	"ACCEPT_NO": "Okay, maybe next time!",
+	"GIVE_INGREDIENTS": "You need {} ingredients to make a {}: {} ",
+	"GIVE_INSTRUCTIONS": "Here are the instructions for making a {}: {}"
+}
