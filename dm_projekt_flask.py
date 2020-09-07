@@ -126,36 +126,21 @@ class YesMoreInfoIntentHandler(AbstractRequestHandler):
                 'random_cocktail' in session_attr)
 
     def handle(self, handler_input):
-        logging.info('In YesMoreInfoIntentHandler')
-
-        attribute_manager = handler_input.attributes_manager
-        session_attr = attribute_manager.session_attributes
+        logging.info('In YesMoreInfoIntentHandler, changing to AskForCocktailIntentHandler')
+        session_attr = handler_input.attributes_manager.session_attributes
         drink = session_attr['random_cocktail']
         api_request = build_url(api, 's', drink)
-        if session_attr['random_cocktail_ingredients'] is False:
-            session_attr['random_cocktail_ingredients'] = True
-            request_key = parse_request('ingredients')
-        elif session_attr['random_cocktail_instructions'] is False:
-            session_attr['random_cocktail_instructions'] = True
-            request_key = parse_request('recipe')
-        else:
-            request_key = parse_request('both')
+        request_key = parse_request('ingredients')
         try:
             response = http_get(api_request)
+            logging.info(response)
             speech = build_response(request_key, response, drink)
         except Exception as e:
             speech = get_speech('GENERIC_EXCEPTION')
             logging.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
-        if session_attr['random_cocktail_instructions'] is True:
-            handler_input.response_builder.speak(
-                    speech).set_should_end_session(False)
-            return handler_input.response_builder.response
-        else:
-            speech = speech + get_speech('ASK_INSTRUCTIONS')
-            handler_input.response_builder.speak(
-                    speech).ask(speech)
-            return handler_input.response_builder.response
+        handler_input.response_builder.speak(speech).set_should_end_session(False)
+        return handler_input.response_builder.response
 
 
 class NoMoreInfoIntentHandler(AbstractRequestHandler):
