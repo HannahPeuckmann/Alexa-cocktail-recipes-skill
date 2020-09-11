@@ -1,6 +1,7 @@
 import logging
 import requests  # for http request
 import six
+from nltk.tokenize import sent_tokenize
 import json
 from flask import Flask
 from ask_sdk_core.skill_builder import SkillBuilder
@@ -30,11 +31,13 @@ from basic_handlers import HelpIntentHandler, CancelOrStopIntentHandler, \
                            ResponseLogger
 
 
-logging.basicConfig(filename='dm_projekt_log.log',
-                    level=logging.INFO,
-                    format='%(asctime)s %(levelname)s: %(message)s'
-                    )
-
+# create logger, logger settings
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(funcName)s:%(message)s')
+file_handler = logging.FileHandler('sex_on_the_beach.log')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 app = Flask(__name__)
 sb = SkillBuilder()
@@ -64,21 +67,21 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
         return is_intent_name("AskForCocktail")(handler_input)
 
     def handle(self, handler_input):
-        logging.info('In AskForCocktailRequestHandler')
+        logger.info('In AskForCocktailRequestHandler')
         filled_slots = handler_input.request_envelope.request.intent.slots
         slot_values = get_slot_values(filled_slots)
         request_type = slot_values['request']['resolved']
         drink = slot_values['cocktail']['resolved']
-        logging.info(slot_values)
+        logger.info(slot_values)
         api_request = build_url(api, 's', drink)
         request_key = parse_request(request_type)
         try:
             response = http_get(api_request)
-            logging.info(response)
+            logger.info(response)
             speech = build_response(request_key, response, drink)
         except Exception as e:
             speech = get_speech('COCKTAIL_EXCEPTION').format(drink)
-            logging.info("Intent: {}: message: {}".format(
+            logger.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
         handler_input.response_builder.speak(
             speech).set_should_end_session(False)
@@ -93,7 +96,7 @@ class RandomCocktailIntentHandler(AbstractRequestHandler):
         return is_intent_name('RandomCocktailIntent')(handler_input)
 
     def handle(self, handler_input):
-        logging.info('In RandomCocktailIntentHandler')
+        logger.info('In RandomCocktailIntentHandler')
 
         attribute_manager = handler_input.attributes_manager
         session_attr = attribute_manager.session_attributes
@@ -110,11 +113,40 @@ class RandomCocktailIntentHandler(AbstractRequestHandler):
                 get_speech('ASK_INGREDIENTS'))
         except Exception as e:
             speech = get_speech('GENERIC_EXCEPTION')
-            logging.info("Intent: {}: message: {}".format(
+            logger.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
         handler_input.response_builder.speak(speech).ask(speech)
         return handler_input.response_builder.response
 
+class IngredientdescriptionHandler(AbstractRequestHandler):
+    """ Handler for information about a specific ingredient"""
+
+    def can_handle(self, handler_input):
+        return is_intent_name('IngredientDescriptionIntent')(handler_input)
+
+    def handle(self, handler_input):
+        logger.info('In IngredientDescriptionHandler')
+        filled_slots = handler_input.request_envelope.request.intent.slots
+        slot_values = get_slot_values(filled_slots)
+        for key in slot_values:
+            if slot_values[key]['resolved']:
+                ingredient = slot_values[key]['resolved']
+        api_request = build_url(api, 'i', ingredient)
+        try:
+            response = http_get(api_request)
+            logging.info(response)
+            description = sent_tokenize(response['ingredients'][0]['strDescription'])
+            if len(description) > 3:
+                description = '.'.join(description[:2])
+            else:
+                description = description[0]
+        except Exception as e:
+            description = get_speech("UNKNOWN_INGREDIENT").format(ingredient)
+            logger.info("Intent: {}: message: {}".format(
+                handler_input.request_envelope.request.intent.name, str(e)))
+        handler_input.response_builder.speak(
+            description).set_should_end_session(False)
+        return handler_input.response_builder.response
 
 class YesMoreInfoIntentHandler(AbstractRequestHandler):
     """Handler for yes to get more info intent."""
@@ -126,18 +158,18 @@ class YesMoreInfoIntentHandler(AbstractRequestHandler):
                 'random_cocktail' in session_attr)
 
     def handle(self, handler_input):
-        logging.info('In YesMoreInfoIntentHandler, changing to AskForCocktailIntentHandler')
+        logger.info('In YesMoreInfoIntentHandler, changing to AskForCocktailIntentHandler')
         session_attr = handler_input.attributes_manager.session_attributes
         drink = session_attr['random_cocktail']
         api_request = build_url(api, 's', drink)
         request_key = parse_request('ingredients')
         try:
             response = http_get(api_request)
-            logging.info(response)
+            logger.info(response)
             speech = build_response(request_key, response, drink)
         except Exception as e:
             speech = get_speech('GENERIC_EXCEPTION')
-            logging.info("Intent: {}: message: {}".format(
+            logger.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
         handler_input.response_builder.speak(speech).set_should_end_session(False)
         return handler_input.response_builder.response
@@ -154,7 +186,7 @@ class NoMoreInfoIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        logging.info("In NoMoreInfoIntentHandler")
+        logger.info("In NoMoreInfoIntentHandler")
 
         speech = get_speech('ACCEPT_NO')
         handler_input.response_builder.speak(speech).set_should_end_session(
@@ -203,21 +235,21 @@ def build_response(request_key, response, drink):
                                                        ingredients_str) + \
             instructions
     else:
-        logging.info(request_key)
+        logger.info(request_key)
     return speech
 
 
 def parse_request(request_type):
     if request_type == 'recipe':
         request_key = 'strInstructions'
-        logging.info(request_key)
+        logger.info(request_key)
     elif request_type == 'ingredients':
         request_key = ['strIngredient' + str(i) for i in range(1, 16)]
-        logging.info(request_key)
+        logger.info(request_key)
     else:  # both
         request_key = (['strIngredient' + str(i) for i in range(1, 16)],
                        'strInstructions')
-        logging.info(request_key)
+        logger.info(request_key)
     return request_key
 
 
@@ -225,7 +257,7 @@ def get_slot_values(filled_slots):
     """Return slot values with additional info."""
     # type: (Dict[str, Slot]) -> Dict[str, Any]
     slot_values = {}
-    logging.info("Filled slots: {}".format(filled_slots))
+    logger.info("Filled slots: {}".format(filled_slots))
     for key, slot_item in six.iteritems(filled_slots):
         name = slot_item.name
         try:
@@ -250,10 +282,10 @@ def get_slot_values(filled_slots):
                 KeyError,
                 IndexError,
                 TypeError) as e:
-            logging.info(
+            logger.info(
                 "Couldn't resolve status_code for slot item: {}".format(
                     slot_item))
-            logging.info(e)
+            logger.info(e)
             slot_values[name] = {
                 "synonym": slot_item.value,
                 "resolved": slot_item.value,
@@ -276,7 +308,7 @@ def build_url(api, search_category, search_word):
 
 def http_get(url):
     response = requests.get(url)
-    logging.info('API request with: {}'.format(url))
+    logger.info('API request with: {}'.format(url))
     if response.status_code < 200 or response.status_code >= 300:
         response.raise_for_status()
     return response.json()
@@ -284,6 +316,7 @@ def http_get(url):
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(AskForCocktailRequestHandler())
 sb.add_request_handler(RandomCocktailIntentHandler())
+sb.add_request_handler(IngredientdescriptionHandler())
 sb.add_request_handler(YesMoreInfoIntentHandler())
 sb.add_request_handler(NoMoreInfoIntentHandler())
 sb.add_request_handler(HelpIntentHandler())

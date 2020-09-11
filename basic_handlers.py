@@ -2,6 +2,8 @@
 
 import logging
 
+import json
+
 from ask_sdk_model.services import ServiceException
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.utils import is_request_type, is_intent_name
@@ -9,15 +11,20 @@ from ask_sdk_core.handler_input import HandlerInput
 
 from ask_sdk_model import Response
 
+from logger import LoggerClass
 
 from ask_sdk_core.dispatch_components import (
     AbstractRequestHandler, AbstractExceptionHandler,
     AbstractResponseInterceptor, AbstractRequestInterceptor)
 
-logging.basicConfig(filename='dm_projekt_log.log',
-                    level=logging.INFO,
-                    format='%(asctime)s %(levelname)s: %(message)s'
-                    )
+# create logger, logger settings
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(funcName)s:%(message)s')
+file_handler = logging.FileHandler('sex_on_the_beach.log')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+
 
 class HelpIntentHandler(AbstractRequestHandler):
     """Handler for Help Intent."""
@@ -28,10 +35,10 @@ class HelpIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speech_text = "Ask me for a cocktail recipe."
+        speech = get_speech("HELP_MSG")
 
-        handler_input.response_builder.speak(speech_text).ask(
-            speech_text)
+        handler_input.response_builder.speak(speech).ask(
+            speech)
         return handler_input.response_builder.response
 
 
@@ -45,8 +52,8 @@ class CancelOrStopIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speech_text = "See you!"
-        handler_input.response_builder.speak(speech_text)
+        speech = get_speech("STOP_MSG")
+        handler_input.response_builder.speak(speech)
         return handler_input.response_builder.response
 
 
@@ -62,10 +69,9 @@ class FallbackIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speech_text = (
-            "Sex on the beach can't help you with that.")
-        reprompt = "You can search for cocktails by an ingredient or by name."
-        handler_input.response_builder.speak(speech_text).ask(reprompt)
+        speech = get_speech("HANDLE_EXCEPTION")
+        reprompt = get_speech("REPROMPT")
+        handler_input.response_builder.speak(speech).ask(reprompt)
         return handler_input.response_builder.response
 
 
@@ -94,9 +100,9 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 
     def handle(self, handler_input, exception):
         # type: (HandlerInput, Exception) -> Response
-        logging.error(exception, exc_info=True)
+        logger.error(exception, exc_info=True)
 
-        speech = "I cant handle this request, sorry."
+        speech = get_speech('HANDLE_EXCEPTION')
         handler_input.response_builder.speak(speech).ask(speech)
         return handler_input.response_builder.response
 
@@ -107,7 +113,7 @@ class RequestLogger(AbstractRequestInterceptor):
 
     def process(self, handler_input):
         # type: (HandlerInput) -> None
-        logging.info("Request Envelope: {}".format(
+        logger.info("Request Envelope: {}".format(
             handler_input.request_envelope))
 
 
@@ -116,5 +122,9 @@ class ResponseLogger(AbstractResponseInterceptor):
 
     def process(self, handler_input, response):
         # type: (HandlerInput, Response) -> None
-        logging.info("Response: {}".format(response))
+        logger.info("Response: {}".format(response))
 
+def get_speech(prompt):
+    with open('strings.json') as strings:
+        string_data = json.load(strings)
+    return string_data[prompt]
