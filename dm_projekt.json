@@ -14,7 +14,12 @@
                 },
                 {
                     "name": "AMAZON.HelpIntent",
-                    "samples": []
+                    "samples": [
+                        "how can i ask you for cocktails",
+                        "what can i ask you",
+                        "help",
+                        "usage"
+                    ]
                 },
                 {
                     "name": "AMAZON.StopIntent",

@@ -11,7 +11,7 @@
 	"GIVE_INGREDIENTS": "You need {} ingredients to make a {}: {} ",
 	"GIVE_INSTRUCTIONS": "Here are the instructions for making a {}: {}",
 	"STOP_MSG": "See you!",
-	"HELP_MSG": "Ask me for a cocktail recipe.",
 	"REPROMPT": "You can search for cocktails by an ingredient or by name.",
-	"UNKNOWN_INGREDIENT": "I don't know anything about {}."
+	"UNKNOWN_INGREDIENT": "I don't know anything about {}.",
+	"HELP_MSG": "You can ask me for the ingredients and recipe for a specific cocktail. You can ask for a cocktail idea and i will suggest you a cocktail. If you do not know an ingredient from a recipe, or you want more infos on it, just ask me for the ingredient. You can also search for coctails that contain a specific ingredient."
 }
