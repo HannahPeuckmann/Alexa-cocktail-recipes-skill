@@ -31,14 +31,13 @@ class HelpIntentHandler(AbstractRequestHandler):
 
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
-        return is_request_type("AMAZON.HelpIntent")(handler_input)
+        return is_intent_name("AMAZON.HelpIntent")(handler_input)
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
         speech = get_speech("HELP_MSG")
 
-        handler_input.response_builder.speak(speech).ask(
-            speech)
+        handler_input.response_builder.speak(speech)
         return handler_input.response_builder.response
 
 
