@@ -1,6 +1,6 @@
 {
 	"WELCOME_MSG": "Welcome to Sex on the beach",
-	"WELCOME_REPROMT": "You can ask me for cocktail recipes.",
+	"WELCOME_REPROMT": "You can ask me for cocktail recipes. For more infos on the usage of this skill ask for help.",
 	"COCKTAIL_EXCEPTION": "I am sorry, I don't have any information about {}",
 	"GENERIC_EXCEPTION": "I am sorry, something went wrong.",
 	"HANDLE_EXCEPTION": "I am sorry, I can't handle this request.",
