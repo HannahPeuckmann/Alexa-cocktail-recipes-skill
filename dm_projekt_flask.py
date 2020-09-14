@@ -2,6 +2,7 @@ import logging
 import requests  # for http request
 import six
 import json
+import random
 from flask import Flask
 from ask_sdk_core.skill_builder import SkillBuilder
 from flask_ask_sdk.skill_adapter import SkillAdapter
@@ -70,7 +71,11 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
         request_type = slot_values['request']['resolved']
         drink = slot_values['cocktail']['resolved']
         logging.info(slot_values)
-        api_request = build_url(api, 's', drink)
+        api_request = build_url(api,
+                                'search',
+                                api_category='s',
+                                api_keyword=drink
+                                )
         request_key = parse_request(request_type)
         try:
             response = http_get(api_request)
@@ -82,6 +87,77 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
                 handler_input.request_envelope.request.intent.name, str(e)))
         handler_input.response_builder.speak(
             speech).set_should_end_session(False)
+        return handler_input.response_builder.response
+
+
+class CocktailWithIngredientHandler(AbstractRequestHandler):
+    """Handler for cocktail with ingredient intent."""
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return is_intent_name('CocktailWithIngredientIntent')(handler_input)
+
+    def handle(self, handler_input):
+        logging.info('In CocktailWithIngredientIntentHandler')
+        attribute_manager = handler_input.attributes_manager
+        session_attr = attribute_manager.session_attributes
+        filled_slots = handler_input.request_envelope.request.intent.slots
+        slot_values = get_slot_values(filled_slots)
+        ingredient_1 = slot_values['ingredient_one']['resolved']
+        ingredient_2 = slot_values['ingredient_two']['resolved']
+        logging.info(slot_values)
+        api_request_1 = build_url(api,
+                                  'filter',
+                                  api_category='i',
+                                  api_keyword=ingredient_1
+                                  )
+        api_request_2 = build_url(api,
+                                  'filter',
+                                  api_category='i',
+                                  api_keyword=ingredient_2
+                                  )
+        session_attr['current_intent'] = 'FilterIntent'
+        speech, session_attr['filtered_drinks'] = filter_drinks(api_request_1,
+                                                                api_request_2,
+                                                                ingredient_1,
+                                                                ingredient_2
+                                                                )
+        handler_input.response_builder.speak(speech).ask(speech)
+        return handler_input.response_builder.response
+
+
+class NonAlcoholicCocktailIntentHandler(AbstractRequestHandler):
+    """Handler for non alcoholic cocktail intent."""
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return is_intent_name('NonAlcoholicCocktailIntent')(handler_input)
+
+    def handle(self, handler_input):
+        logging.info('In NonAlcoholicCocktailIntentHandler')
+        attribute_manager = handler_input.attributes_manager
+        session_attr = attribute_manager.session_attributes
+        filled_slots = handler_input.request_envelope.request.intent.slots
+        slot_values = get_slot_values(filled_slots)
+        ingredient = slot_values['ingredient']['resolved']
+        logging.info(slot_values)
+        api_request_i = build_url(api,
+                                  'filter',
+                                  api_category='i',
+                                  api_keyword=ingredient
+                                  )
+        api_request_a = build_url(api,
+                                  'filter',
+                                  api_category='a',
+                                  api_keyword='Non_Alcoholic'
+                                  )
+        session_attr['current_intent'] = 'FilterIntent'
+        speech, session_attr['filtered_drinks'] = filter_drinks(api_request_i,
+                                                                api_request_a,
+                                                                ingredient,
+                                                                'no alcohol'
+                                                                )
+        handler_input.response_builder.speak(speech).ask(speech)
         return handler_input.response_builder.response
 
 
@@ -99,9 +175,10 @@ class RandomCocktailIntentHandler(AbstractRequestHandler):
         session_attr = attribute_manager.session_attributes
 
         try:
-            response = http_get(
-                'https://www.thecocktaildb.com/api/json/v1/1/random.php')
+            api_request = build_url(api, 'random')
+            response = http_get(api_request)
             drink = response['drinks'][0]['strDrink']
+            session_attr['current_intent'] = 'RandomCocktailIntent'
             session_attr['random_cocktail'] = drink
             session_attr['random_cocktail_ingredients'] = False
             session_attr['random_cocktail_instructions'] = False
@@ -121,25 +198,40 @@ class YesMoreInfoIntentHandler(AbstractRequestHandler):
 
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
-        session_attr = handler_input.attributes_manager.session_attributes
-        return (is_intent_name('AMAZON.YesIntent')(handler_input) and
-                'random_cocktail' in session_attr)
+        return is_intent_name('AMAZON.YesIntent')(handler_input)
 
     def handle(self, handler_input):
-        logging.info('In YesMoreInfoIntentHandler, changing to AskForCocktailIntentHandler')
+        logging.info('In YesMoreInfoIntentHandler,'
+                     ' changing to AskForCocktailIntentHandler')
         session_attr = handler_input.attributes_manager.session_attributes
-        drink = session_attr['random_cocktail']
-        api_request = build_url(api, 's', drink)
-        request_key = parse_request('ingredients')
-        try:
-            response = http_get(api_request)
-            logging.info(response)
-            speech = build_response(request_key, response, drink)
-        except Exception as e:
-            speech = get_speech('GENERIC_EXCEPTION')
-            logging.info("Intent: {}: message: {}".format(
-                handler_input.request_envelope.request.intent.name, str(e)))
-        handler_input.response_builder.speak(speech).set_should_end_session(False)
+        if session_attr['current_intent'] == 'RandomCocktailIntent':
+            drink = session_attr['random_cocktail']
+            api_request = build_url(api,
+                                    'search',
+                                    api_category='s',
+                                    api_keyword=drink
+                                    )
+            request_key = parse_request('ingredients')
+            try:
+                response = http_get(api_request)
+                logging.info(response)
+                speech = build_response(request_key, response, drink)
+            except Exception as e:
+                speech = get_speech('GENERIC_EXCEPTION')
+                logging.info("Intent: {}: message: {}".format(
+                    handler_input.request_envelope.request.intent.name, str(
+                        e)
+                    )
+                    )
+        elif session_attr['current_intent'] == 'FilterIntent':
+            drink_list = session_attr['filtered_drinks']
+            if len(drink_list) <= 4:
+                speech = ', '.join(drink_list)
+            else:
+                drink_samples = random.sample(drink_list, 3)
+                speech = ', '.join(drink_samples)
+        handler_input.response_builder.speak(
+            speech).set_should_end_session(False)
         return handler_input.response_builder.response
 
 
@@ -163,6 +255,38 @@ class NoMoreInfoIntentHandler(AbstractRequestHandler):
 
 
 api = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?{}={}'
+api = 'https://www.thecocktaildb.com/api/json/v1/1/{}.php'
+
+
+# Benutzen NonAlcoholicCocktailIntent und CocktailWithIngredientIntent
+def filter_drinks(api_request_1, api_request_2, filter_1, filter_2):
+    try:
+        response_1 = http_get(api_request_1)
+        response_2 = http_get(api_request_2)
+        logging.info(response_1)
+        logging.info(response_2)
+        drinks_1 = [entry['strDrink'] for entry in response_1['drinks']]
+        drinks_2 = [entry['strDrink'] for entry in response_2['drinks']]
+        common_drinks = (set(drinks_1) & set(drinks_2))
+        if len(common_drinks) > 4:
+            speech = get_speech('ASK_DRINK_LISTING_EXAMPLE').format(
+                len(common_drinks),
+                filter_1,
+                filter_2
+                )
+        else:
+            speech = get_speech('ASK_DRINK_LISTING').format(
+                len(common_drinks),
+                filter_1,
+                filter_2
+                )
+    except Exception as e:
+        speech = get_speech('INGREDIENT_EXCEPTION').format(filter_1,
+                                                           filter_2
+                                                           )
+        common_drinks = set()
+        logging.info("In filter function: message: {}".format(str(e)))
+    return speech, list(common_drinks)
 
 
 ### build_response und parse_request sind noch bissel zu speziefisch
@@ -268,9 +392,13 @@ def get_speech(prompt):
     return string_data[prompt]
 
 
-def build_url(api, search_category, search_word):
+def build_url(api, api_request_type, api_category=None, api_keyword=None):
     """Return options for HTTP Get call."""
-    url = api.format(search_category, search_word)
+    if api_category and api_keyword:
+        url = api.format(api_request_type) + '?{}={}'.format(api_category,
+                                                             api_keyword)
+    else:
+        url = api.format(api_request_type)
     return url
 
 
@@ -281,8 +409,11 @@ def http_get(url):
         response.raise_for_status()
     return response.json()
 
+
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(AskForCocktailRequestHandler())
+sb.add_request_handler(CocktailWithIngredientHandler())
+sb.add_request_handler(NonAlcoholicCocktailIntentHandler())
 sb.add_request_handler(RandomCocktailIntentHandler())
 sb.add_request_handler(YesMoreInfoIntentHandler())
 sb.add_request_handler(NoMoreInfoIntentHandler())
