@@ -14,7 +14,12 @@
                 },
                 {
                     "name": "AMAZON.HelpIntent",
-                    "samples": []
+                    "samples": [
+                        "how can i ask you for cocktails",
+                        "what can i ask you",
+                        "help",
+                        "usage"
+                    ]
                 },
                 {
                     "name": "AMAZON.StopIntent",
@@ -49,7 +54,9 @@
                         }
                     ],
                     "samples": [
-                        "how do I make a {cocktail}",
+                        "how to make a {cocktail} {request}",
+                        "{cocktail} {request}",
+                        "how do I make a {cocktail} {request}",
                         "look up the {request} for {cocktail}",
                         "search for  the {request} of {cocktail}",
                         "give me the {request} for {cocktail}"
@@ -75,6 +82,31 @@
                 {
                     "name": "AMAZON.NoIntent",
                     "samples": []
+                },
+                {
+                    "name": "IngredientDescriptionIntent",
+                    "slots": [
+                        {
+                            "name": "ingredient_drink",
+                            "type": "AMAZON.Drink"
+                        },
+                        {
+                            "name": "ingredient_food",
+                            "type": "AMAZON.Food"
+                        }
+                    ],
+                    "samples": [
+                        "can you tell me what is {ingredient_food}",
+                        "tell me more about {ingredient_food}",
+                        "what is {ingredient_food}",
+                        "{ingredient_food}",
+                        "can you tell me what {ingredient_drink}  is",
+                        "I don't know what {ingredient_drink}  is",
+                        "tell me more about {ingredient_drink} ",
+                        "tell me something about {ingredient_drink} ",
+                        "what is {ingredient_drink} ",
+                        "{ingredient_drink} "
+                    ]
                 }
             ],
             "types": [

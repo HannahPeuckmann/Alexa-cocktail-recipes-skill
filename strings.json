@@ -1,9 +1,10 @@
 {
 	"WELCOME_MSG": "Welcome to Sex on the beach",
-	"WELCOME_REPROMT": "You can ask me for cocktail recipes.",
+	"WELCOME_REPROMT": "You can ask me for cocktail recipes. For more infos on the usage of this skill ask for help.",
 	"COCKTAIL_EXCEPTION": "I am sorry, I don't have any information about {}",
 	"GENERIC_EXCEPTION": "I am sorry, something went wrong.",
 	"INGREDIENT_EXCEPTION": "I am sorry, I can't find any cocktails with {} and {}.",
+	"HANDLE_EXCEPTION": "I am sorry, I can't handle this request.",
 	"SUGGESTION_SPEECH": "How about a {}? ",
 	"ASK_INGREDIENTS": "Do you want to hear the ingredients list?",
 	"ASK_INSTRUCTIONS": "Do you want to hear the instructions?",
@@ -11,5 +12,9 @@
 	"ASK_DRINK_LISTING": "I found {} cocktails with {} and {}. Do you want me to list them for you?",
 	"ACCEPT_NO": "Okay, maybe next time!",
 	"GIVE_INGREDIENTS": "You need {} ingredients to make a {}: {} ",
-	"GIVE_INSTRUCTIONS": "Here are the instructions for making a {}: {}"
+	"GIVE_INSTRUCTIONS": "Here are the instructions for making a {}: {}",
+	"STOP_MSG": "See you!",
+	"REPROMPT": "You can search for cocktails by an ingredient or by name.",
+	"UNKNOWN_INGREDIENT": "I don't know anything about {}.",
+	"HELP_MSG": "You can ask me for the ingredients and recipe for a specific cocktail. You can ask for a cocktail idea and i will suggest you a cocktail. If you do not know an ingredient from a recipe, or you want more infos on it, just ask me for the ingredient. You can also search for coctails that contain a specific ingredient."
 }
