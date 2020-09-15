@@ -4,6 +4,8 @@ import logging
 
 import json
 
+import random
+
 from ask_sdk_model.services import ServiceException
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.utils import is_request_type, is_intent_name
@@ -126,4 +128,6 @@ class ResponseLogger(AbstractResponseInterceptor):
 def get_speech(prompt):
     with open('strings.json') as strings:
         string_data = json.load(strings)
-    return string_data[prompt]
+        prompt_list = string_data[prompt]
+        prompt = random.choice(prompt_list)
+    return prompt
