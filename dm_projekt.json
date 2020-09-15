@@ -54,11 +54,14 @@
                         }
                     ],
                     "samples": [
-                        "how to make a {cocktail} {request}",
-                        "{cocktail} {request}",
-                        "how do I make a {cocktail} {request}",
-                        "look up the {request} for {cocktail}",
-                        "search for  the {request} of {cocktail}",
+                        "search for {cocktail}",
+                        "search for the recipe for {cocktail}",
+                        "give me the recipe for {cocktail}",
+                        "how to make a {cocktail} ",
+                        "{cocktail} ",
+                        "how do I make a {cocktail}",
+                        "look up the  {request} for {cocktail}",
+                        "search for  the  {request} of {cocktail}",
                         "give me the {request} for {cocktail}"
                     ]
                 },
@@ -103,6 +106,11 @@
                         }
                     ],
                     "samples": [
+                        "Do you know a cocktail with {ingredient_one} and {ingredient_two}",
+                        "Do you know cocktails with {ingredient_one}",
+                        "i want cocktails with {ingredient_one}",
+                        "give me cocktails with {ingredient_one}",
+                        "give me cocktails with {ingredient_one} and {ingredient_two}",
                         "i want to make a cocktail with {ingredient_one} and {ingredient_two}",
                         "give me a cocktail with {ingredient_one} and {ingredient_two}",
                         "i want to make a cocktail with {ingredient_one}",
@@ -189,20 +197,20 @@
                     "values": [
                         {
                             "name": {
-                                "value": "recipe and ingredients",
-                                "synonyms": [
-                                    "ingredients and recipe"
-                                ]
-                            }
-                        },
-                        {
-                            "name": {
                                 "value": "ingredients"
                             }
                         },
                         {
                             "name": {
-                                "value": "recipe"
+                                "value": "ingredients and instructions",
+                                "synonyms": [
+                                    "instructions and ingredients"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "instructions"
                             }
                         }
                     ]
@@ -310,7 +318,7 @@
                 "variations": [
                     {
                         "type": "PlainText",
-                        "value": "what do you want me to look up, a recipe, ingredients or both?"
+                        "value": "what do you want me to look up, instructions , ingredients or both?"
                     }
                 ]
             },

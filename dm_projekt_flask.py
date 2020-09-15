@@ -273,8 +273,7 @@ class NoMoreInfoIntentHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
         session_attr = handler_input.attributes_manager.session_attributes
-        return (is_intent_name("AMAZON.NoIntent")(handler_input) and
-                'random_cocktail' in session_attr)
+        return is_intent_name("AMAZON.NoIntent")(handler_input)
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
@@ -305,6 +304,8 @@ def filter_drinks(api_request_1, api_request_2, filter_1, filter_2):
                 filter_1,
                 filter_2
                 )
+        elif len(common_drinks) == 0:
+            speech = get_speech('INGREDIENT_EXCEPTION').format(filter_1, filter_2)
         else:
             speech = get_speech('ASK_DRINK_LISTING').format(
                 len(common_drinks),
@@ -320,9 +321,7 @@ def filter_drinks(api_request_1, api_request_2, filter_1, filter_2):
     return speech, list(common_drinks)
 
 
-### build_response und parse_request sind noch bissel zu speziefisch
-### für den einen Intent gebaut,
-### erweiten, bzw umstrukturieren wenn weitere intents da sind
+
 def build_response(request_key, response, drink):
     if type(request_key) == str:
         instructions = response['drinks'][0][request_key]
@@ -363,7 +362,7 @@ def build_response(request_key, response, drink):
 
 
 def parse_request(request_type):
-    if request_type == 'recipe':
+    if request_type == 'instructions':
         request_key = 'strInstructions'
         logger.info(request_key)
     elif request_type == 'ingredients':
@@ -420,7 +419,9 @@ def get_slot_values(filled_slots):
 def get_speech(prompt):
     with open('strings.json') as strings:
         string_data = json.load(strings)
-    return string_data[prompt]
+        prompt_list = string_data[prompt]
+        prompt = random.choice(prompt_list)
+    return prompt
 
 
 def build_url(api, api_request_type, api_category=None, api_keyword=None):
