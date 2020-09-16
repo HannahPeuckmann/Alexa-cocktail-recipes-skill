@@ -14,7 +14,9 @@
 	"GIVE_INGREDIENTS": ["You need {} ingredients to make a {}: {} ", "{} ingredients are needed for a {}: {}"],
 	"GIVE_INSTRUCTIONS": ["Here are the instructions for making a {}: {}", "To make a {}, {}","The instructions for {} are the following: {}"],
 	"STOP_MSG": ["See you!", "Bye", "Bye, have a nice day", "Enjoy your cocktail"],
-	"REPROMPT": ["You can search for cocktails by an ingredient or by name."],
+	"REPROMPT": ["You can search for cocktails by ingredients or by name."],
+	"GIVE_GLASS": ["{} is served in a {}.", "A {} looks good in a {}.", "For a {} a {} is the right choice"],
+	"GLASS_EXCEPTION": ["I am sorry, I don't know which glass is the right one.", "I don't know this information about that cocktail.", "I don't know, I am sorry, maybe google knows which glass is the right one."],
 	"UNKNOWN_INGREDIENT": ["I don't know anything about {}.", "I don't know more about {} i'm sorry, maybe google knows more than me.", "I am sorry, I don't have more infos on {}"],
 	"HELP_MSG": ["You can ask me for the ingredients and instructions for a specific cocktail. You can ask for a cocktail idea and i will suggest you a cocktail. If you do not know an ingredient from a recipe, or you want more infos on it, just ask me for the ingredient. You can also search for coctails that contain a specific ingredients."]
 }

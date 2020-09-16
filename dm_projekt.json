@@ -164,6 +164,22 @@
                         "what is {ingredient_drink} ",
                         "{ingredient_drink} "
                     ]
+                },
+                {
+                    "name": "GlassIntent",
+                    "slots": [
+                        {
+                            "name": "drink",
+                            "type": "AMAZON.Drink"
+                        }
+                    ],
+                    "samples": [
+                        "which glass do i need for a {drink}",
+                        "In which glass is a {drink} served",
+                        "What kind of glass do i need for this cocktail",
+                        "glass",
+                        "which glass do I need"
+                    ]
                 }
             ],
             "types": [
