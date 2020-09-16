@@ -71,12 +71,19 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
         logger.info('In AskForCocktailRequestHandler')
         attribute_manager = handler_input.attributes_manager
         session_attr = attribute_manager.session_attributes
-        filled_slots = handler_input.request_envelope.request.intent.slots
-        slot_values = get_slot_values(filled_slots)
+        slot_values = get_slot_values(handler_input.request_envelope.request.intent.slots)
         request_type = slot_values['request']['resolved']
-        drink = slot_values['cocktail']['resolved']
+        drink = None
+        if slot_values['drink']['resolved']:
+            drink = slot_values['drink']['resolved']
+        elif 'drink' in session_attr:
+            drink = session_attr['drink']
+        else:
+            prompt = get_speech("ASK_COCKTAIL")
+            return handler_input.response_builder.speak(prompt).ask(prompt).add_directive(
+                                ElicitSlotDirective(slot_to_elicit='drink')
+                            ).response
         session_attr['drink'] = drink
-        logging.info(slot_values)
         api_request = build_url(api,
                                 'search',
                                 api_category='s',
@@ -106,13 +113,12 @@ class GlassIntentHandler(AbstractRequestHandler):
         attribute_manager = handler_input.attributes_manager
         session_attr = attribute_manager.session_attributes
         slot_values = get_slot_values(handler_input.request_envelope.request.intent.slots)
-        if 'drink' in session_attr:
-            drink = session_attr['drink']
-        elif slot_values['drink']['resolved']:
+        if slot_values['drink']['resolved']:
             drink = slot_values['drink']['resolved']
+        elif 'drink' in session_attr:
+            drink = session_attr['drink']
         else:
-            print('in else')
-            prompt = "Which Cocktail?"
+            prompt = get_speech("ASK_COCKTAIL")
             return handler_input.response_builder.speak(prompt).ask(prompt).add_directive(
                                 ElicitSlotDirective(slot_to_elicit='drink')
                             ).response

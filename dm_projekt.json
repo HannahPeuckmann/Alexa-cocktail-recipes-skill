@@ -45,24 +45,19 @@
                             ]
                         },
                         {
-                            "name": "cocktail",
-                            "type": "AMAZON.Drink",
-                            "samples": [
-                                "{request} for {cocktail}",
-                                "{cocktail}"
-                            ]
+                            "name": "drink",
+                            "type": "AMAZON.Drink"
                         }
                     ],
                     "samples": [
-                        "search for {cocktail}",
-                        "search for the recipe for {cocktail}",
-                        "give me the recipe for {cocktail}",
-                        "how to make a {cocktail} ",
-                        "{cocktail} ",
-                        "how do I make a {cocktail}",
-                        "look up the  {request} for {cocktail}",
-                        "search for  the  {request} of {cocktail}",
-                        "give me the {request} for {cocktail}"
+                        "search for {drink}",
+                        "search for the recipe for {drink}",
+                        "give me the recipe for {drink}",
+                        "how to make a {drink} ",
+                        "how do I make a {drink}",
+                        "look up the  {request} for {drink}",
+                        "search for  the  {request} of {drink}",
+                        "give me the {request} for {drink}"
                     ]
                 },
                 {
@@ -265,13 +260,11 @@
                             }
                         },
                         {
-                            "name": "cocktail",
+                            "name": "drink",
                             "type": "AMAZON.Drink",
                             "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.840061674831.444849601174"
-                            }
+                            "elicitationRequired": false,
+                            "prompts": {}
                         }
                     ]
                 },
@@ -320,15 +313,6 @@
             "delegationStrategy": "ALWAYS"
         },
         "prompts": [
-            {
-                "id": "Elicit.Slot.840061674831.444849601174",
-                "variations": [
-                    {
-                        "type": "PlainText",
-                        "value": "which cocktail do you want me to look up?"
-                    }
-                ]
-            },
             {
                 "id": "Elicit.Slot.840061674831.1561456036119",
                 "variations": [
