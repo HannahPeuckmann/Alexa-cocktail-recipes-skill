@@ -35,7 +35,8 @@ from basic_handlers import HelpIntentHandler, CancelOrStopIntentHandler, \
 # create logger, logger settings
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(funcName)s:%(message)s')
+formatter = logging.Formatter(
+    '%(asctime)s:%(levelname)s:%(funcName)s:%(message)s')
 file_handler = logging.FileHandler('sex_on_the_beach.log')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
@@ -71,7 +72,8 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
         logger.info('In AskForCocktailRequestHandler')
         attribute_manager = handler_input.attributes_manager
         session_attr = attribute_manager.session_attributes
-        slot_values = get_slot_values(handler_input.request_envelope.request.intent.slots)
+        slot_values = get_slot_values(
+            handler_input.request_envelope.request.intent.slots)
         request_type = slot_values['request']['resolved']
         drink = None
         if slot_values['drink']['resolved']:
@@ -80,9 +82,9 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
             drink = session_attr['drink']
         else:
             prompt = get_speech("ASK_COCKTAIL")
-            return handler_input.response_builder.speak(prompt).ask(prompt).add_directive(
-                                ElicitSlotDirective(slot_to_elicit='drink')
-                            ).response
+            return handler_input.response_builder.speak(
+                prompt).ask(prompt).add_directive(
+                    ElicitSlotDirective(slot_to_elicit='drink')).response
         session_attr['drink'] = drink
         api_request = build_url(api,
                                 'search',
@@ -102,6 +104,66 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
             speech).set_should_end_session(False)
         return handler_input.response_builder.response
 
+
+class MeasureIntentHandler(AbstractRequestHandler):
+    """Handler to ask for the measure of an ingredient."""
+
+    def can_handle(self, handler_input):
+        return is_intent_name('MeasureIntent')(handler_input)
+
+    def handle(self, handler_input):
+        logger.info('In MeasureIntentHandler')
+        attribute_manager = handler_input.attributes_manager
+        session_attr = attribute_manager.session_attributes
+        slot_values = get_slot_values(
+            handler_input.request_envelope.request.intent.slots)
+        ingredient = slot_values['ingredient']['resolved']
+        if slot_values['drink']['resolved']:
+            drink = slot_values['drink']['resolved']
+            session_attr['drink'] = drink
+        elif 'drink' in session_attr:
+            drink = session_attr['drink']
+        else:
+            prompt = get_speech("ASK_COCKTAIL")
+            return handler_input.response_builder.speak(
+                prompt).ask(prompt).add_directive(
+                    ElicitSlotDirective(slot_to_elicit='drink')).response
+        api_request = build_url(api,
+                                'search',
+                                api_category='s',
+                                api_keyword=drink
+                                )
+        try:
+            response = http_get(api_request)
+            logger.info(response)
+            ingredient_keys = ['strIngredient' + str(i) for i in range(1, 16)]
+            ingredient_n = 0
+            logger.info(ingredient_keys)
+            for k in ingredient_keys:
+                current_ingredient = response['drinks'][0][k]
+                if current_ingredient is None:
+                    continue
+                else:
+                    if current_ingredient.lower() == ingredient:
+                        ingredient_n = k[-1]
+            if int(ingredient_n) > 0:
+                measure_key = 'strMeasure' + ingredient_n
+                measure = response['drinks'][0][measure_key]
+                speech = get_speech('GIVE_MEASURE').format(measure,
+                                                           ingredient,
+                                                           drink)
+            else:
+                speech = get_speech('MEASURE_EXCEPTION').format(drink,
+                                                                ingredient)
+        except Exception as e:
+            speech = get_speech('GENERIC_EXCEPTION')
+            logger.info("Intent: {}: message: {}".format(
+                handler_input.request_envelope.request.intent.name, str(e)))
+        handler_input.response_builder.speak(
+            speech).set_should_end_session(False)
+        return handler_input.response_builder.response
+
+
 class GlassIntentHandler(AbstractRequestHandler):
     """Handler to ask for the glass a cocktail is served in."""
 
@@ -112,16 +174,17 @@ class GlassIntentHandler(AbstractRequestHandler):
         logging.info('In GlassIntentHandler')
         attribute_manager = handler_input.attributes_manager
         session_attr = attribute_manager.session_attributes
-        slot_values = get_slot_values(handler_input.request_envelope.request.intent.slots)
+        slot_values = get_slot_values(
+            handler_input.request_envelope.request.intent.slots)
         if slot_values['drink']['resolved']:
             drink = slot_values['drink']['resolved']
         elif 'drink' in session_attr:
             drink = session_attr['drink']
         else:
             prompt = get_speech("ASK_COCKTAIL")
-            return handler_input.response_builder.speak(prompt).ask(prompt).add_directive(
-                                ElicitSlotDirective(slot_to_elicit='drink')
-                            ).response
+            return handler_input.response_builder.speak(
+                prompt).ask(prompt).add_directive(
+                    ElicitSlotDirective(slot_to_elicit='drink')).response
         api_request = build_url(api,
                                 'search',
                                 api_category='s',
@@ -130,7 +193,6 @@ class GlassIntentHandler(AbstractRequestHandler):
         try:
             response = http_get(api_request)
             logger.info(response)
-            print(response)
             glass = response['drinks'][0]['strGlass']
             speech = get_speech("GIVE_GLASS").format(drink, glass)
         except Exception as e:
@@ -244,6 +306,7 @@ class RandomCocktailIntentHandler(AbstractRequestHandler):
         handler_input.response_builder.speak(speech).ask(speech)
         return handler_input.response_builder.response
 
+
 class IngredientdescriptionHandler(AbstractRequestHandler):
     """ Handler for information about a specific ingredient"""
 
@@ -264,7 +327,8 @@ class IngredientdescriptionHandler(AbstractRequestHandler):
         try:
             response = http_get(api_request)
             logging.info(response)
-            description = sent_tokenize(response['ingredients'][0]['strDescription'])
+            description = sent_tokenize(
+                response['ingredients'][0]['strDescription'])
             if len(description) > 3:
                 description = '.'.join(description[:2])
             else:
@@ -277,6 +341,7 @@ class IngredientdescriptionHandler(AbstractRequestHandler):
             description).set_should_end_session(False)
         return handler_input.response_builder.response
 
+
 class YesMoreInfoIntentHandler(AbstractRequestHandler):
     """Handler for yes to get more info intent."""
 
@@ -286,7 +351,7 @@ class YesMoreInfoIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         logger.info('In YesMoreInfoIntentHandler,'
-                     ' changing to AskForCocktailIntentHandler')
+                    ' changing to AskForCocktailIntentHandler')
         session_attr = handler_input.attributes_manager.session_attributes
         if session_attr['current_intent'] == 'RandomCocktailIntent':
             drink = session_attr['drink']
@@ -303,7 +368,8 @@ class YesMoreInfoIntentHandler(AbstractRequestHandler):
             except Exception as e:
                 speech = get_speech('GENERIC_EXCEPTION')
                 logger.info("Intent: {}: message: {}".format(
-                handler_input.request_envelope.request.intent.name, str(e)))
+                    handler_input.request_envelope.request.intent.name, str(
+                        e)))
         elif session_attr['current_intent'] == 'FilterIntent':
             drink_list = session_attr['filtered_drinks']
             if len(drink_list) <= 4:
@@ -353,7 +419,8 @@ def filter_drinks(api_request_1, api_request_2, filter_1, filter_2):
                 filter_2
                 )
         elif len(common_drinks) == 0:
-            speech = get_speech('INGREDIENT_EXCEPTION').format(filter_1, filter_2)
+            speech = get_speech('INGREDIENT_EXCEPTION').format(filter_1,
+                                                               filter_2)
         else:
             speech = get_speech('ASK_DRINK_LISTING').format(
                 len(common_drinks),
@@ -408,6 +475,7 @@ def build_response(request_key, response, drink):
         logger.info(request_key)
     return speech
 
+
 # benutzen AskForCocktailIntent, YesIntent
 def parse_request(request_type):
     if request_type == 'instructions':
@@ -421,6 +489,7 @@ def parse_request(request_type):
                        'strInstructions')
         logger.info(request_key)
     return request_key
+
 
 # benutzen AskForCocktailIntent, CocktailwithIngredint, Ingredientdescription, NonalcoholicCocktail,
 def get_slot_values(filled_slots):
@@ -463,6 +532,7 @@ def get_slot_values(filled_slots):
             }
     return slot_values
 
+
 # benutzen alle
 def get_speech(prompt):
     with open('strings.json') as strings:
@@ -470,6 +540,7 @@ def get_speech(prompt):
         prompt_list = string_data[prompt]
         prompt = random.choice(prompt_list)
     return prompt
+
 
 # benutzen alle
 def build_url(api, api_request_type, api_category=None, api_keyword=None):
@@ -480,6 +551,7 @@ def build_url(api, api_request_type, api_category=None, api_keyword=None):
     else:
         url = api.format(api_request_type)
     return url
+
 
 # benutzen alle
 def http_get(url):
@@ -495,6 +567,7 @@ sb.add_request_handler(AskForCocktailRequestHandler())
 sb.add_request_handler(CocktailWithIngredientHandler())
 sb.add_request_handler(NonAlcoholicCocktailIntentHandler())
 sb.add_request_handler(GlassIntentHandler())
+sb.add_request_handler(MeasureIntentHandler())
 sb.add_request_handler(RandomCocktailIntentHandler())
 sb.add_request_handler(IngredientdescriptionHandler())
 sb.add_request_handler(YesMoreInfoIntentHandler())
@@ -508,9 +581,9 @@ sb.add_global_request_interceptor(RequestLogger())
 sb.add_global_response_interceptor(ResponseLogger())
 
 
-
 skill_adapter = SkillAdapter(
     skill=sb.create(), skill_id='TEST', app=app)
+
 
 @app.route("/", methods=['POST'])
 def invoke_skill():
