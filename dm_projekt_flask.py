@@ -438,10 +438,7 @@ def filter_drinks(api_request_1, api_request_2, filter_1, filter_2):
 
 # benutzen AskForCocktailIntent und YesIntent
 def build_response(request_key, response, drink):
-    if type(request_key) == str:
-        instructions = response['drinks'][0][request_key]
-        speech = get_speech('GIVE_INSTRUCTIONS').format(drink, instructions)
-    elif type(request_key) == list:
+    if type(request_key) == list:
         n_ingredients = 0
         ingredients = []
         for ingredient_key in request_key:
@@ -456,21 +453,22 @@ def build_response(request_key, response, drink):
                                                        drink,
                                                        ingredients_str)
     elif type(request_key) == tuple:
-        instructions = response['drinks'][0][request_key[1]]
-        n_ingredients = 0
-        ingredients = []
-        for ingredient_key in request_key[0]:
+        instructions = ' ' + response['drinks'][0][request_key[1]]
+        measured_ingredients = []
+        for i in request_key[0]:
+            ingredient_key = 'strIngredient' + str(i)
+            measure_key = 'strMeasure' + str(i)
             ingredient = response['drinks'][0][ingredient_key]
+            measure = response['drinks'][0][measure_key]
             if ingredient is None:
                 break
             else:
-                ingredients.append(ingredient)
-                n_ingredients += 1
-        ingredients_str = ', '.join(ingredients)
-        speech = get_speech('GIVE_INGREDIENTS').format(n_ingredients,
-                                                       drink,
-                                                       ingredients_str) + \
-            instructions
+                ingredient_with_measure = measure + ' ' + ingredient
+                measured_ingredients.append(ingredient_with_measure)
+        measured_ingredients_str = ', '.join(measured_ingredients)
+        speech = get_speech('GIVE_INSTRUCTIONS').format(
+            drink,
+            measured_ingredients_str) + instructions
     else:
         logger.info(request_key)
     return speech
@@ -478,15 +476,11 @@ def build_response(request_key, response, drink):
 
 # benutzen AskForCocktailIntent, YesIntent
 def parse_request(request_type):
-    if request_type == 'instructions':
-        request_key = 'strInstructions'
-        logger.info(request_key)
-    elif request_type == 'ingredients':
+    if request_type == 'ingredients':
         request_key = ['strIngredient' + str(i) for i in range(1, 16)]
         logger.info(request_key)
     else:  # both
-        request_key = (['strIngredient' + str(i) for i in range(1, 16)],
-                       'strInstructions')
+        request_key = ([i for i in range(1, 16)], 'strInstructions')
         logger.info(request_key)
     return request_key
 
