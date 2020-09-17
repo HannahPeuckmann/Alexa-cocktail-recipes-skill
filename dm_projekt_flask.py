@@ -141,7 +141,7 @@ class MeasureIntentHandler(AbstractRequestHandler):
             logger.info(ingredient_keys)
             for k in ingredient_keys:
                 current_ingredient = response['drinks'][0][k]
-                if current_ingredient is None:
+                if current_ingredient is None or current_ingredient == '':
                     break
                 else:
                     if current_ingredient.lower() == ingredient.lower():
@@ -447,7 +447,7 @@ def build_response(request_key, response, drink):
         ingredients = []
         for ingredient_key in request_key:
             ingredient = response['drinks'][0][ingredient_key]
-            if ingredient is None:
+            if ingredient is None or ingredient == '':
                 break
             else:
                 ingredients.append(ingredient)
@@ -464,7 +464,7 @@ def build_response(request_key, response, drink):
             measure_key = 'strMeasure' + str(i)
             ingredient = response['drinks'][0][ingredient_key]
             measure = response['drinks'][0][measure_key]
-            if ingredient is None:
+            if ingredient is None or ingredient == '':
                 break
             else:
                 if measure is None:
