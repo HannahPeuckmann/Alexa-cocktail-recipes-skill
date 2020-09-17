@@ -17,6 +17,7 @@
 	"STOP_MSG": ["See you!", "Bye", "Bye, have a nice day.", "Enjoy your cocktail!"],
 	"REPROMPT": ["You can search for cocktails by ingredients or by name."],
 	"GIVE_MEASURE": ["You need {} {} for a {}."],
+	"GIVE_NO_MEASURE": ["The amount of {} you need for a {} is not specified. Use as much as you want!", "You can use as much {} as you want for a {}!"],
 	"MEASURE_EXCEPTION": ["Sorry, my recipe for a {} doesn't require any {}."],
 	"GIVE_GLASS": ["{} is served in a {}.", "A {} looks good in a {}.", "For a {} a {} is the right choice"],
 	"GLASS_EXCEPTION": ["I am sorry, I don't know which glass is the right one.", "I don't know this information about that cocktail.", "I don't know, I am sorry, maybe google knows which glass is the right one."],
