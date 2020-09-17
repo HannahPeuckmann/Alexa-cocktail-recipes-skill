@@ -50,6 +50,12 @@
                         }
                     ],
                     "samples": [
+                        "what are the {request}",
+                        "{request}",
+                        "{request} please",
+                        "please give me the {request}",
+                        "what is the {request}",
+                        "give me the {request}",
                         "search for {drink}",
                         "search for the recipe for {drink}",
                         "give me the recipe for {drink}",

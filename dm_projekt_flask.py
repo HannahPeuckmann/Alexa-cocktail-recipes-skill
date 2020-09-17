@@ -142,16 +142,20 @@ class MeasureIntentHandler(AbstractRequestHandler):
             for k in ingredient_keys:
                 current_ingredient = response['drinks'][0][k]
                 if current_ingredient is None:
-                    continue
+                    break
                 else:
-                    if current_ingredient.lower() == ingredient:
+                    if current_ingredient.lower() == ingredient.lower():
                         ingredient_n = k[-1]
             if int(ingredient_n) > 0:
                 measure_key = 'strMeasure' + ingredient_n
                 measure = response['drinks'][0][measure_key]
-                speech = get_speech('GIVE_MEASURE').format(measure,
-                                                           ingredient,
-                                                           drink)
+                if measure is None:
+                    speech = get_speech('GIVE_NO_MEASURE').format(ingredient,
+                                                                  drink)
+                else:
+                    speech = get_speech('GIVE_MEASURE').format(measure,
+                                                               ingredient,
+                                                               drink)
             else:
                 speech = get_speech('MEASURE_EXCEPTION').format(drink,
                                                                 ingredient)
@@ -463,6 +467,8 @@ def build_response(request_key, response, drink):
             if ingredient is None:
                 break
             else:
+                if measure is None:
+                    measure = 'some'
                 ingredient_with_measure = measure + ' ' + ingredient
                 measured_ingredients.append(ingredient_with_measure)
         measured_ingredients_str = ', '.join(measured_ingredients)
