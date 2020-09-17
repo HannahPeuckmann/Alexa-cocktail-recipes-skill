@@ -175,6 +175,29 @@
                         "glass",
                         "which glass do I need"
                     ]
+                },
+                {
+                    "name": "MeasureIntent",
+                    "slots": [
+                        {
+                            "name": "ingredient",
+                            "type": "AMAZON.Drink",
+                            "samples": [
+                                "of {ingredient}",
+                                "for {ingredient}",
+                                "{ingredient}"
+                            ]
+                        },
+                        {
+                            "name": "drink",
+                            "type": "AMAZON.Drink"
+                        }
+                    ],
+                    "samples": [
+                        "How much {ingredient} is in a {drink}",
+                        "How much {ingredient}",
+                        "How much {ingredient} do I need"
+                    ]
                 }
             ],
             "types": [
@@ -308,6 +331,29 @@
                             }
                         }
                     ]
+                },
+                {
+                    "name": "MeasureIntent",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "ingredient",
+                            "type": "AMAZON.Drink",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.893040327157.1066404087614"
+                            }
+                        },
+                        {
+                            "name": "drink",
+                            "type": "AMAZON.Drink",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
+                        }
+                    ]
                 }
             ],
             "delegationStrategy": "ALWAYS"
@@ -362,6 +408,19 @@
                     {
                         "type": "PlainText",
                         "value": "I know a lot of non alcoholic cocktails, please tell me an ingredient to narrow down the search"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.893040327157.1066404087614",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which ingredient measure are you asking"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "Which ingredient do you want the measure of"
                     }
                 ]
             }
