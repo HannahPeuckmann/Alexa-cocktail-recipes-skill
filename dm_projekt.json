@@ -73,22 +73,33 @@
                 },
                 {
                     "name": "RandomCocktailIntent",
-                    "slots": [],
+                    "slots": [
+                        {
+                            "name": "drink_synonym",
+                            "type": "drink_synonyms"
+                        }
+                    ],
                     "samples": [
-                        "give me a random idea for a drink",
-                        "drink suggestion",
-                        "cocktail suggestion",
-                        "give me an idea for a drink",
-                        "what is your favourite drink",
-                        "I want to know a suggestion for a drink",
-                        "what is your favourite cocktail",
-                        "Give me a cocktail idea",
-                        "Give me an idea for a cocktail",
-                        "I want a cocktail idea",
-                        "I want a random cocktail",
-                        "Give me a cocktail suggestion",
-                        "Give me a random cocktail",
-                        "I want a cocktail suggestion"
+                        "Another {drink_synonym} idea",
+                        "Another {drink_synonym} suggestion",
+                        "I want a new {drink_synonym}",
+                        "I dont know which {drink_synonym} to make",
+                        "Any ideas for a {drink_synonym}",
+                        "Any {drink_synonym} suggestions",
+                        "Any {drink_synonym} ideas",
+                        "{drink_synonym} suggestion please",
+                        "Give me a {drink_synonym} idea please",
+                        "I want a {drink_synonym} suggestion",
+                        "Give me a random {drink_synonym}",
+                        "Give me a {drink_synonym} suggestion",
+                        "I want a random {drink_synonym}",
+                        "I want a {drink_synonym} idea",
+                        "Give me a {drink_synonym} idea",
+                        "I want to know a suggestion for a {drink_synonym}",
+                        "what is your favourite {drink_synonym}",
+                        "give me an idea for a {drink_synonym}",
+                        "{drink_synonym} suggestion",
+                        "give me a random idea for a {drink_synonym}"
                     ]
                 },
                 {
@@ -116,26 +127,26 @@
                                 "maybe {ingredient_two}",
                                 "{ingredient_two}"
                             ]
+                        },
+                        {
+                            "name": "drink_synonym",
+                            "type": "drink_synonyms"
                         }
                     ],
                     "samples": [
-                        "a drink with {ingredient_one}",
-                        "drinks with {ingredient_one} and {ingredient_two}",
-                        "give me a drink with {ingredient_one} ",
-                        "I want to make a drink with {ingredient_one} ",
-                        "Do you know a drink with {ingredient_one} and {ingredient_two}",
-                        "I am seraching for drinks with {ingredient_one}",
-                        "Do you know a cocktail with {ingredient_one} and {ingredient_two}",
-                        "Do you know cocktails with {ingredient_one}",
-                        "i want cocktails with {ingredient_one}",
-                        "give me cocktails with {ingredient_one}",
-                        "give me cocktails with {ingredient_one} and {ingredient_two}",
-                        "i want to make a cocktail with {ingredient_one} and {ingredient_two}",
-                        "give me a cocktail with {ingredient_one} and {ingredient_two}",
-                        "i want to make a cocktail with {ingredient_one}",
-                        "give me a cocktail with {ingredient_one}",
-                        "i want a cocktail with {ingredient_one}",
-                        "i want a cocktail with {ingredient_one} and {ingredient_two}"
+                        "i want {drink_synonym} with {ingredient_one} and {ingredient_two}",
+                        "give me a {drink_synonym} with {ingredient_one} and {ingredient_two}",
+                        "i want to make {drink_synonym} with {ingredient_one} and {ingredient_two}",
+                        "give me {drink_synonym} with {ingredient_one} and {ingredient_two}",
+                        "give me {drink_synonym} with {ingredient_one}",
+                        "i want {drink_synonym} with {ingredient_one}",
+                        "Do you know {drink_synonym} with {ingredient_one}",
+                        "I am searching for {drink_synonym} with {ingredient_one}",
+                        "Do you know {drink_synonym} with {ingredient_one} and {ingredient_two}",
+                        "I want to make {drink_synonym} with {ingredient_one} ",
+                        "{drink_synonym} with {ingredient_one}",
+                        "a {drink_synonym} with {ingredient_one}",
+                        "{drink_synonym} with {ingredient_one} and {ingredient_two}"
                     ]
                 },
                 {
@@ -149,19 +160,22 @@
                                 "Maybe {ingredient}",
                                 "{ingredient}"
                             ]
+                        },
+                        {
+                            "name": "drink_synonym",
+                            "type": "drink_synonyms"
                         }
                     ],
                     "samples": [
-                        "look up drinks without alcohol",
-                        "look up non alcohlic cocktails",
-                        "I am searching for non alcoholic cocktails",
-                        "give me a non alcoholic drink with {ingredient}",
-                        "i want the recipes for cocktails without alcohol",
-                        "Give me a non alcoholic cocktail with {ingredient}",
-                        "I want a non alcoholic cocktail with {ingredient}",
-                        "Give me a cocktail without alcohol",
-                        "I want a cocktail without alcohol",
-                        "I want a non alcoholic cocktail"
+                        "I want a non alcoholic {drink_synonym}",
+                        "I want a {drink_synonym} without alcohol",
+                        "Give me a {drink_synonym} without alcohol",
+                        "I want a non alcoholic {drink_synonym} with {ingredient}",
+                        "i want the recipes for {drink_synonym} without alcohol",
+                        "give me a non alcoholic {drink_synonym} with {ingredient}",
+                        "I am searching for non alcoholic {drink_synonym}",
+                        "look up non alcohlic {drink_synonym}",
+                        "look up {drink_synonym} without alcohol"
                     ]
                 },
                 {
@@ -195,9 +209,14 @@
                         {
                             "name": "drink",
                             "type": "AMAZON.Drink"
+                        },
+                        {
+                            "name": "drink_synonym",
+                            "type": "drink_synonyms"
                         }
                     ],
                     "samples": [
+                        "What kind of glass do i need for this {drink_synonym}",
                         "which glass would you recomend for {drink}",
                         "do i need a special glass",
                         "how is a {drink} served",
@@ -205,7 +224,6 @@
                         "which glass is the best choice for {drink}",
                         "which glass do i need for a {drink}",
                         "In which glass is a {drink} served",
-                        "What kind of glass do i need for this cocktail",
                         "glass",
                         "which glass do I need"
                     ]
@@ -214,24 +232,28 @@
                     "name": "MeasureIntent",
                     "slots": [
                         {
-                            "name": "ingredient",
-                            "type": "AMAZON.Drink",
-                            "samples": [
-                                "of {ingredient}",
-                                "for {ingredient}",
-                                "{ingredient}"
-                            ]
-                        },
-                        {
                             "name": "drink",
                             "type": "AMAZON.Drink"
+                        },
+                        {
+                            "name": "ingredient",
+                            "type": "AMAZON.Drink"
+                        },
+                        {
+                            "name": "drink_synonym",
+                            "type": "drink_synonyms"
                         }
                     ],
                     "samples": [
-                        "How much {ingredient} do i need for a {drink}",
-                        "How much {ingredient} is in a {drink}",
+                        "How much {ingredient} did you say",
+                        "Can you repeat the amount of {ingredient}",
+                        "Can you tell me the amount of {ingredient} again",
+                        "Whats the amount of {ingredient} again",
+                        "How much {ingredient} do I need",
                         "How much {ingredient}",
-                        "How much {ingredient} do I need"
+                        "How much {ingredient} is in a {drink}",
+                        "How much {ingredient} do i need for a {drink}",
+                        "How much {ingredient} do i need for this {drink_synonym}"
                     ]
                 }
             ],
@@ -273,6 +295,7 @@
                             "name": {
                                 "value": "ingredients and instructions",
                                 "synonyms": [
+                                    "recipe",
                                     "instructions and ingredients"
                                 ]
                             }
@@ -289,12 +312,129 @@
                     "values": [
                         {
                             "name": {
+                                "value": "mango"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "cantaloupe",
+                                "synonyms": [
+                                    "cantaloupes"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "demerara sugar"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "cranberries",
+                                "synonyms": [
+                                    "cranberry"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "egg",
+                                "synonyms": [
+                                    "eggs"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "strawberries",
+                                "synonyms": [
+                                    "strawberry"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "chocolate syrup"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "sugar syrup"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "watermelon",
+                                "synonyms": [
+                                    "melon"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "kiwi"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "ginger"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "lemon",
+                                "synonyms": [
+                                    "lemons"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "orange"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "cocoa powder"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "egg yolk"
+                            }
+                        },
+                        {
+                            "name": {
                                 "value": "sugar"
                             }
                         },
                         {
                             "name": {
                                 "value": "salt"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "drink_synonyms",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "drink",
+                                "synonyms": [
+                                    "a few cocktails",
+                                    "a few drinks",
+                                    "some drinks",
+                                    "some cocktails",
+                                    "a beverages",
+                                    "beverages",
+                                    "beverage",
+                                    "a cocktail",
+                                    "cocktails",
+                                    "drinks",
+                                    "a drink",
+                                    "cocktail"
+                                ]
                             }
                         }
                     ]
@@ -348,6 +488,13 @@
                             "prompts": {
                                 "elicitation": "Elicit.Slot.681283985589.1487974518624"
                             }
+                        },
+                        {
+                            "name": "drink_synonym",
+                            "type": "drink_synonyms",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
                         }
                     ]
                 },
@@ -364,6 +511,13 @@
                             "prompts": {
                                 "elicitation": "Elicit.Slot.262513250660.1424000472856"
                             }
+                        },
+                        {
+                            "name": "drink_synonym",
+                            "type": "drink_synonyms",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
                         }
                     ]
                 }
