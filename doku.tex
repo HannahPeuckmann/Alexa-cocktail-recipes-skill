@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{changepage}
 \usepackage{amssymb}
 \usepackage{titlesec}
 \usepackage{makeidx}
@@ -22,10 +23,21 @@
 \maketitle
 \thispagestyle{fancy}
 
-Zusammenfassung hier hin, oder lieber neue Seite, Index und zusammenfassung als eigenne section?
+Sex on the beach - Im Ramen des Seminars Dialogmodelierung ist als abschließendes Projekt ein
+Alexa skill entstanden, der Alexa zur Expertin werden lässt was Cocktails angeht.
+Die grundlegende Funktionalität des Skills besteht darin, dass Alexa für einen Cocktail Auskunft geben kann,
+über das Rezept, wobei zwischen Zutaten und Anleitung unterschieden wird, und über das Glas in dem der Cocktail
+üblicherweise serviert wird. Benutzer*Innen können auch Informationen erhalten über in Rezepten enthaltene Zutaten,
+Alexa gibt dann eine kleine Zusammenfassung was die Zutat ist. Die Mengenangaben der Zutaten können ebenfalls noch einmal extra erfragt werden pro Zutat.
+Darüber hinaus kann Alexa Cocktails herraussuchen, die, von Benutzer*Innen
+gegebene, Zutaten enthalten, wobei auch nach nichtalkoholischen Cocktails gefiltert werden kann. 
+Benutzer*Innen können sich auch von Alexa einen willkürlichen Cocktail vorschlagen lassen.
+Wärend der Entwicklung haben diese Funktionalität immer besser ineinander gegriffen, so das am Ende ein flüssiger Dialog
+zwischen Benutzer*Innen und Alexa entstehen kann.
 
 \section{Projektziele, Anforderungsdefinition}
 \subsection{Benutzerpersonae}
+
 \subsection{Beispieldialoge}
 \begin{dialogue}
 	\speak{USER} Open sex on the beach.
@@ -35,8 +47,7 @@ Zusammenfassung hier hin, oder lieber neue Seite, Index und zusammenfassung als 
 	\speak{USER} Yes.
 	\speak{ALEXA} 2 ingredients are needed for a Dark and Stormy: Dark Rum, Ginger Beer.
 	\speak{USER} Give me the instructions for Dark and Stormy.
-	\speak{ALEXA} The instructions for dark and stormy are the following:
-	In a highball glass filled with ice add 6cl dark rum and top with ginger beer. Garnish with lime wedge.
+	\speak{ALEXA} The instructions for dark and stormy are the following: You need 5 cl Dark Rum, 10 cl Ginger Beer. In a highball glass filled with ice add 6cl dark rum and top with ginger beer. Garnish with lime wedge.
 	\speak{USER} Which glass do I need?.
 	\speak{ALEXA} Dark and stormy is served in a Highball glass.
 	\speak{User} Bye
@@ -50,12 +61,11 @@ Zusammenfassung hier hin, oder lieber neue Seite, Index und zusammenfassung als 
 	\speak{ALEXA} You need 4 ingredients to make a ipanema:
 	Cachaca, Lemon Juice, Agave Syrup, Champagne.
 	\speak{USER} search for the instructions.
-	\speak{ALEXA} Here are the instructions for making a ipanema: Add the cachaca, lemon juice and syrup to your boston glass.
-	Add ice and shake until ice cold. Pour into a chilled flute and top-up with Champagne.
+	\speak{ALEXA}The instructions for ipanema are the following: You need 25 ml Cachaca, 15 ml Lemon Juice, 10 ml Agave Syrup, top up with Champagne. Add the cachaca, lemon juice and syrup to your boston glass. Add ice and shake until ice cold. Pour into a chilled flute and top-up with Champagne.
 	\speak{USER} search for white russian.
 	\speak{ALEXA} what do you want me to look up, instructions, ingredients or both?
 	\speak{USER} both.
-	\speak{ALEXA} You need 3 ingredients to make a white Russian: Vodka, Coffee liqueur, Light cream. Pour vodka and coffee liqueur over ice cubes in an old-fashioned glass. Fill with light cream and serve.
+	\speak{ALEXA} The instructions for white Russian are the following: You need 2 oz Vodka, 1 oz Coffee liqueur, some Light cream. Pour vodka and coffee liqueur over ice cubes in an old-fashioned glass. Fill with light cream and serve.
 	\speak{USER} search for cocktails with coffee liqueur
 	\speak{ALEXA} There are probably a lot of cocktails with coffee liqueur ,
 	tell me a second ingredient to narrow down the search
@@ -128,6 +138,44 @@ Zusammenfassung hier hin, oder lieber neue Seite, Index und zusammenfassung als 
 
 \section{Projektabschluss, Evaluation}
 \subsection{Versuchsanordnung}
+Für den Versuch haben wir uns dazu entschieden ein user manual zu schreiben welches den Testpersonen
+bereitgestellt wird und haben uns gegen eine konkrete Aufgabenstellung an die Testpersonen geeinigt. Fpr das Users Manual haben wir uns entschieden um den Testpersonen einen Eindruck zu geben welche Informationen sie durch den Skill generell abrufen können. Dadurch soll vermieden werden, dass funktionalitäten wie das Erfragen einer Mengenangabe oder das Erfragen des Richtigen Glases gar nicht in Betracht gezogen wird. Allerdings bestand dadurch die Gefahr die Testpersonen bezüglich ihrer Art den Skill aufzurufen zu primen.
+In der Evaluation der entstandenen Dialoge stellte sich herraus das, dies der fall war/nicht der fall war.
+\\
+ 
+\begin{adjustwidth}{1cm}{1cm}
+\textbf{Users Manual}
+
+We are happy you decided to use the sex on the beach Alexa skill. Our skill is designed around cocktails, we seek to provide you with all infos concerning cocktails you may need.
+Our skill has many functionalities; You can ask for the ingredient list and instructions for a specific cocktail, and if you can’t decide which glas your cocktail looks best in, you can ask alexa which glas a cocktail is served in. Furthermore if you want to have more infos on a specific ingredient you can also ask for infos on that. If you have ingredients you prefer in your cocktails, you can Alexa for cocktails that contain those, maybe she knows some recipes, maybe not. If don’t have any inspiration for your cocktail party yet, you can also ask Alexa to suggest you a cocktail.
+If you need a reminder on how to use the skill, you can just ask Alexa for help or usage. And last but not least, if you need to know how much gin you need in a gin tonic, Alexa can handle that too.
+\\
+
+Example requests you can ask our skill to get familiar:
+\begin{itemize}
+
+\item give me a cocktail idea!
+
+\item what is Kahlua?
+
+\item what is the recipe for an Ipanema?
+
+\item search for cocktails with gin and sugar
+
+\item which glass do I need for a white russian?
+
+\item How much milk do I need for a sweet bananas?
+\end{itemize}
+
+\end{adjustwidth}
+
+Testpersonen:
+    Karla, Emma, Freund, evtl Catalina, 
+
 \subsection{Auswertung}
 \subsection{Ausblick}
+Code besser strukturieren, immer noch zu viel doppelter code\\
+mehr mit slot to elicit bzw intent changing von lambda aus arbeiten\\
+mehrsprachig, - schwierig wegen datenbank fehler in Übersetzung.\\
+Möglichkeit nach alkoholgehalt zu fragen
 \end{document}
