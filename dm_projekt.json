@@ -50,6 +50,12 @@
                         }
                     ],
                     "samples": [
+                        "what are the {request}",
+                        "{request}",
+                        "{request} please",
+                        "please give me the {request}",
+                        "what is the {request}",
+                        "give me the {request}",
                         "which {request} do I need to make a {drink}",
                         "which {request} do I need for a {drink}",
                         "what do I deed for a {drink}",
@@ -204,6 +210,29 @@
                         "What kind of glass do i need for this cocktail",
                         "glass",
                         "which glass do I need"
+                    ]
+                },
+                {
+                    "name": "MeasureIntent",
+                    "slots": [
+                        {
+                            "name": "ingredient",
+                            "type": "AMAZON.Drink",
+                            "samples": [
+                                "of {ingredient}",
+                                "for {ingredient}",
+                                "{ingredient}"
+                            ]
+                        },
+                        {
+                            "name": "drink",
+                            "type": "AMAZON.Drink"
+                        }
+                    ],
+                    "samples": [
+                        "How much {ingredient} is in a {drink}",
+                        "How much {ingredient}",
+                        "How much {ingredient} do I need"
                     ]
                 }
             ],
