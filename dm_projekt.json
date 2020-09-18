@@ -182,13 +182,11 @@
                         "can you tell me what is {ingredient_food}",
                         "tell me more about {ingredient_food}",
                         "what is {ingredient_food}",
-                        "{ingredient_food}",
                         "can you tell me what {ingredient_drink}  is",
                         "I don't know what {ingredient_drink}  is",
                         "tell me more about {ingredient_drink} ",
                         "tell me something about {ingredient_drink} ",
-                        "what is {ingredient_drink} ",
-                        "{ingredient_drink} "
+                        "what is {ingredient_drink} "
                     ]
                 },
                 {
@@ -230,6 +228,7 @@
                         }
                     ],
                     "samples": [
+                        "How much {ingredient} do i need for a {drink}",
                         "How much {ingredient} is in a {drink}",
                         "How much {ingredient}",
                         "How much {ingredient} do I need"
