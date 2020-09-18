@@ -50,12 +50,11 @@
                         }
                     ],
                     "samples": [
-                        "what are the {request}",
-                        "{request}",
-                        "{request} please",
-                        "please give me the {request}",
-                        "what is the {request}",
-                        "give me the {request}",
+                        "which {request} do I need to make a {drink}",
+                        "which {request} do I need for a {drink}",
+                        "what do I deed for a {drink}",
+                        "what are the {request} for {drink}",
+                        "what is the recipe for {drink}",
                         "search for {drink}",
                         "search for the recipe for {drink}",
                         "give me the recipe for {drink}",
@@ -70,6 +69,13 @@
                     "name": "RandomCocktailIntent",
                     "slots": [],
                     "samples": [
+                        "give me a random idea for a drink",
+                        "drink suggestion",
+                        "cocktail suggestion",
+                        "give me an idea for a drink",
+                        "what is your favourite drink",
+                        "I want to know a suggestion for a drink",
+                        "what is your favourite cocktail",
                         "Give me a cocktail idea",
                         "Give me an idea for a cocktail",
                         "I want a cocktail idea",
@@ -107,6 +113,12 @@
                         }
                     ],
                     "samples": [
+                        "a drink with {ingredient_one}",
+                        "drinks with {ingredient_one} and {ingredient_two}",
+                        "give me a drink with {ingredient_one} ",
+                        "I want to make a drink with {ingredient_one} ",
+                        "Do you know a drink with {ingredient_one} and {ingredient_two}",
+                        "I am seraching for drinks with {ingredient_one}",
                         "Do you know a cocktail with {ingredient_one} and {ingredient_two}",
                         "Do you know cocktails with {ingredient_one}",
                         "i want cocktails with {ingredient_one}",
@@ -134,6 +146,11 @@
                         }
                     ],
                     "samples": [
+                        "look up drinks without alcohol",
+                        "look up non alcohlic cocktails",
+                        "I am searching for non alcoholic cocktails",
+                        "give me a non alcoholic drink with {ingredient}",
+                        "i want the recipes for cocktails without alcohol",
                         "Give me a non alcoholic cocktail with {ingredient}",
                         "I want a non alcoholic cocktail with {ingredient}",
                         "Give me a cocktail without alcohol",
@@ -154,6 +171,8 @@
                         }
                     ],
                     "samples": [
+                        "give me more infos on {ingredient_food}",
+                        "give me more infos on {ingredient_drink}",
                         "can you tell me what is {ingredient_food}",
                         "tell me more about {ingredient_food}",
                         "what is {ingredient_food}",
@@ -175,34 +194,16 @@
                         }
                     ],
                     "samples": [
+                        "which glass would you recomend for {drink}",
+                        "do i need a special glass",
+                        "how is a {drink} served",
+                        "how do i serve it",
+                        "which glass is the best choice for {drink}",
                         "which glass do i need for a {drink}",
                         "In which glass is a {drink} served",
                         "What kind of glass do i need for this cocktail",
                         "glass",
                         "which glass do I need"
-                    ]
-                },
-                {
-                    "name": "MeasureIntent",
-                    "slots": [
-                        {
-                            "name": "ingredient",
-                            "type": "AMAZON.Drink",
-                            "samples": [
-                                "of {ingredient}",
-                                "for {ingredient}",
-                                "{ingredient}"
-                            ]
-                        },
-                        {
-                            "name": "drink",
-                            "type": "AMAZON.Drink"
-                        }
-                    ],
-                    "samples": [
-                        "How much {ingredient} is in a {drink}",
-                        "How much {ingredient}",
-                        "How much {ingredient} do I need"
                     ]
                 }
             ],
@@ -337,29 +338,6 @@
                             }
                         }
                     ]
-                },
-                {
-                    "name": "MeasureIntent",
-                    "confirmationRequired": false,
-                    "prompts": {},
-                    "slots": [
-                        {
-                            "name": "ingredient",
-                            "type": "AMAZON.Drink",
-                            "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.893040327157.1066404087614"
-                            }
-                        },
-                        {
-                            "name": "drink",
-                            "type": "AMAZON.Drink",
-                            "confirmationRequired": false,
-                            "elicitationRequired": false,
-                            "prompts": {}
-                        }
-                    ]
                 }
             ],
             "delegationStrategy": "ALWAYS"
@@ -414,19 +392,6 @@
                     {
                         "type": "PlainText",
                         "value": "I know a lot of non alcoholic cocktails, please tell me an ingredient to narrow down the search"
-                    }
-                ]
-            },
-            {
-                "id": "Elicit.Slot.893040327157.1066404087614",
-                "variations": [
-                    {
-                        "type": "PlainText",
-                        "value": "For which ingredient measure are you asking"
-                    },
-                    {
-                        "type": "PlainText",
-                        "value": "Which ingredient do you want the measure of"
                     }
                 ]
             }
