@@ -146,13 +146,15 @@ In der Evaluation der entstandenen Dialoge stellte sich herraus das, dies der fa
 \begin{adjustwidth}{1cm}{1cm}
 \textbf{Users Manual}
 
-We are happy you decided to use the sex on the beach Alexa skill. Our skill is designed around cocktails, we seek to provide you with all infos concerning cocktails you may need.
-Our skill has many functionalities; You can ask for the ingredient list and instructions for a specific cocktail, and if you can’t decide which glas your cocktail looks best in, you can ask alexa which glas a cocktail is served in. Furthermore if you want to have more infos on a specific ingredient you can also ask for infos on that. If you have ingredients you prefer in your cocktails, you can Alexa for cocktails that contain those, maybe she knows some recipes, maybe not. If don’t have any inspiration for your cocktail party yet, you can also ask Alexa to suggest you a cocktail.
-If you need a reminder on how to use the skill, you can just ask Alexa for help or usage. And last but not least, if you need to know how much gin you need in a gin tonic, Alexa can handle that too.
+We are happy you decided to use the sex on the beach Alexa skill. Our skill is designed around cocktails, we seek to provide you with all infos concerning cocktails you may need. To invoke the skill say "Open sex on the beach".
+Our skill has many functionalities; You can ask for the ingredient list and instructions for a specific cocktail, and if you can’t decide which glas your cocktail looks best in, you can ask Alexa which glas a cocktail is served in. Furthermore if you want to have more infos on a specific ingredient you can also ask for infos on that. If you have ingredients you prefer in your cocktails, you can ask Alexa for cocktails that contain those, maybe she knows some recipes, maybe not. If you don’t have any inspiration for your cocktail party yet, you can also ask Alexa to suggest you a cocktail.
+If you need a reminder on how to use the skill, you can just ask Alexa for help or usage. And last but not least, if you need to know how much gin you need in a gin and tonic, Alexa can handle that too.
 \\
 
 Example requests you can ask our skill to get familiar:
 \begin{itemize}
+
+\item open sex on the beach.
 
 \item give me a cocktail idea!
 
@@ -160,19 +162,118 @@ Example requests you can ask our skill to get familiar:
 
 \item what is the recipe for an Ipanema?
 
-\item search for cocktails with gin and sugar
+\item search for cocktails with gin and sugar.
 
-\item which glass do I need for a white russian?
+\item which glass do I need for a White Russian?
 
-\item How much milk do I need for a sweet bananas?
+\item How much milk do I need for a Sweet Bananas?
 \end{itemize}
 
 \end{adjustwidth}
 
 Testpersonen:
-    Karla, Emma, Freund, evtl Catalina, 
+    Karla, Emma, evtl Lisa, evtl Catalina, 
 
 \subsection{Auswertung}
+\textbf{Testperson Karla}
+\begin{dialogue}
+\speak{KARLA} sex on the beach
+
+\speak{ALEXA} Welcome to Sex on the beach
+
+\speak{KARLA} can you suggest me a cocktail
+
+\speak{ALEXA} A Rum Toddy is always a good descision, Do you want to hear the ingredients list?
+
+\speak{KARLA} yes
+
+\speak{ALEXA} 4 ingredients are needed for a Rum Toddy: Rum, Powdered sugar, Lemon peel, Water.
+
+\speak{KARLA} can you suggest something else
+
+\speak{ALEXA} I am sorry, I can't handle this request.\\
+\direct{Diese funktionalität ist nicht eingebaut, darum scheitert der request}
+
+\speak{KARLA} do you have another suggestion
+
+\speak{ALEXA} I am sorry, I can't handle this request.
+
+\speak{KARLA} what glass is rum toddy certain
+
+\speak{ALEXA} I don't know more about rum toddy certain i'm sorry, maybe google knows more than me.\\
+\direct{scheitert warscheinlich aufgrund des speech to text Fehlers}
+
+\speak{KARLA} what do i deed for a white russian
+
+\speak{ALEXA} what do you want me to look up, instructions , ingredients or both?
+
+\speak{KARLA} ingredients
+
+\speak{ALEXA} You need 3 ingredients to make a white Russian: Vodka, Coffee liqueur, Light cream.
+
+\speak{KARLA} can you also give me the instructions
+
+\speak{ALEXA} The instructions for white Russian are the following: You need 2 oz Vodka, 1 oz Coffee liqueur, some Light cream. Pour vodka and coffee liqueur over ice cubes in an old-fashioned glass. Fill with light cream and serve.
+
+\speak{KARLA} what can i do with lemon and rum
+
+\speak{ALEXA} I know 1 cocktails with lemon and rum. Do You want to hear them?
+
+\speak{KARLA} yes sure
+
+\speak{ALEXA} Rum Cooler
+
+\speak{KARLA} how do i make rumpler
+\direct{speech to text Fehler, wird an dieser Stelle leider weiter propagiert, Alexa erkennt keinen neuen cocktail, der slot wird nicht gefüllt und dementsprechend wird angenommen, dass noch über das aktuelle session atribute gesprochen wird, dieses ist white russian. Rum Cooler ist an dieser stelle nicht zum session attribute gemacht wirden, da häufig eine Liste an passenden cocktails ausgegeben wird.}
+
+\speak{ALEXA} what do you want me to look up, instructions , ingredients or both?
+
+\speak{KARLA} instructions
+
+\speak{ALEXA} The instructions for white Russian are the following: You need 2 oz Vodka, 1 oz Coffee liqueur, some Light cream. Pour vodka and coffee liqueur over ice cubes in an old-fashioned glass. Fill with light cream and serve.
+
+\speak{KARLA} how do i make run cooler\\
+\direct{Speech to text fehler}
+
+I am sorry, I can't handle this request.
+
+\speak{KARLA} what is rum
+
+\speak{ALEXA} Rum is a distilled alcoholic beverage made from sugarcane byproducts, such as molasses, or directly from sugarcane juice, by a process of fermentation and distillation..The distillate, a clear liquid, is then usually aged in oak barrels.
+
+\speak{KARLA} do you know pina colada\\
+\direct{wird vom Interaktionsmodell nicht abgedekt diese Anfrage}
+
+\speak{ALEXA} I am sorry, I can't handle this request.
+
+\speak{KARLA} what glass do i need for pina colada\\
+\direct{pina colada wird nicht als Wert für den drink slot erkannt, darum wird wieder auf das session attribute zurückgegriffen}
+
+\speak{ALEXA} For a white Russian a Old-fashioned glass is the right choice
+
+\speak{KARLA} what are the ingredients for king pina colada\\
+\direct{speech to text Fehler}
+
+\speak{ALEXA} I don't know anything about king Pina colada, I am sorry.\\
+\direct{King Pina colada ist nicht in der Datenbank enthalten}
+
+\speak{KARLA} what are the ingredients for pina colada
+
+\speak{ALEXA} 3 ingredients are needed for a Pina colada: Light rum, Coconut milk, Pineapple.
+
+\speak{KARLA} how much coconut milk do i need for a nikolai\\
+\direct{Speech to text Fehler}
+
+\speak{ALEXA} I am sorry, something went wrong.
+\speak{KARLA} Bye
+\speak{ALEXA} Bye, have a nice day.
+\end{dialogue}
+
+Der Dialog wurde oft durch speech to text fehler gestört, die teils schlechte spracherkennung ist zum Teil wohl auch dem Umstand geschuldet, dass die Testperson keine Englischemuttersprachlerin ist.
+Bis auf einen Fehler sind alle durch speech to text getriggert worden.
+Eine wichtige Verbesserung wäre den RandomCocktailIntent dadurch zu erweitern dass er durch Anfragen wie "sugges me another" ebenfalls getriggert wird. Das lässt sich villt relativ einfach im Sprachmodell lösen.
+Eine weitere Verbesserung die in der Lambda Funktion passieren muss; Wenn Alexa bei der Suche nach Cocktails nur einen findet anstatt mehrerer, diesen gefundenen Cocktail zum session attribut machen.
+
 \subsection{Ausblick}
 Code besser strukturieren, immer noch zu viel doppelter code\\
 mehr mit slot to elicit bzw intent changing von lambda aus arbeiten\\
