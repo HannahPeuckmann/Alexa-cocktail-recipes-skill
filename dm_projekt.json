@@ -40,6 +40,10 @@
                             "name": "request",
                             "type": "request",
                             "samples": [
+                                "{request} please",
+                                "the {request}",
+                                "the {request} please",
+                                "look up the {request}",
                                 "look up {request}",
                                 "{request}"
                             ]
@@ -287,6 +291,7 @@
                             "name": {
                                 "value": "ingredients and instructions",
                                 "synonyms": [
+                                    "both",
                                     "recipe",
                                     "instructions and ingredients"
                                 ]
@@ -538,7 +543,19 @@
                 "variations": [
                     {
                         "type": "PlainText",
-                        "value": "what do you want me to look up, instructions , ingredients or both?"
+                        "value": "Are you interested in the ingredients, the instructions or both?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "Do you want the ingredients, instructions or both?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "What do you want me to look up, ingredients, instructions or both?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "Do you want to hear the ingredients, instructions or both?"
                     }
                 ]
             },
