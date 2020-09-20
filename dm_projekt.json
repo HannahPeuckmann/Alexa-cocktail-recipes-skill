@@ -184,18 +184,10 @@
                         {
                             "name": "ingredient_drink",
                             "type": "AMAZON.Drink"
-                        },
-                        {
-                            "name": "ingredient_food",
-                            "type": "AMAZON.Food"
                         }
                     ],
                     "samples": [
-                        "give me more infos on {ingredient_food}",
                         "give me more infos on {ingredient_drink}",
-                        "can you tell me what is {ingredient_food}",
-                        "tell me more about {ingredient_food}",
-                        "what is {ingredient_food}",
                         "can you tell me what {ingredient_drink}  is",
                         "I don't know what {ingredient_drink}  is",
                         "tell me more about {ingredient_drink} ",
@@ -520,6 +512,22 @@
                             "prompts": {}
                         }
                     ]
+                },
+                {
+                    "name": "IngredientDescriptionIntent",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "ingredient_drink",
+                            "type": "AMAZON.Drink",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.26079740743.384204711504"
+                            }
+                        }
+                    ]
                 }
             ],
             "delegationStrategy": "ALWAYS"
@@ -574,6 +582,15 @@
                     {
                         "type": "PlainText",
                         "value": "I know a lot of non alcoholic cocktails, please tell me an ingredient to narrow down the search"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.26079740743.384204711504",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Which ingredient to you want me to look up?"
                     }
                 ]
             }

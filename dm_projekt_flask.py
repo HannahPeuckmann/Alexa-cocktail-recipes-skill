@@ -78,6 +78,7 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
         drink = None
         if slot_values['drink']['resolved']:
             drink = slot_values['drink']['resolved']
+            session_attr['drink'] = drink
         elif 'drink' in session_attr:
             drink = session_attr['drink']
         else:
@@ -182,6 +183,7 @@ class GlassIntentHandler(AbstractRequestHandler):
             handler_input.request_envelope.request.intent.slots)
         if slot_values['drink']['resolved']:
             drink = slot_values['drink']['resolved']
+            session_attr['drink'] = drink
         elif 'drink' in session_attr:
             drink = session_attr['drink']
         else:
@@ -321,9 +323,7 @@ class IngredientdescriptionHandler(AbstractRequestHandler):
         logger.info('In IngredientDescriptionHandler')
         filled_slots = handler_input.request_envelope.request.intent.slots
         slot_values = get_slot_values(filled_slots)
-        for key in slot_values:
-            if slot_values[key]['resolved']:
-                ingredient = slot_values[key]['resolved']
+        ingredient = slot_values['ingredient_drink']['resolved']
         api_request = build_url(api,
                                 'search',
                                 api_category='i',
