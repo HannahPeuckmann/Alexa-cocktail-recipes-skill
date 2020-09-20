@@ -70,8 +70,7 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         logger.info('In AskForCocktailRequestHandler')
-        attribute_manager = handler_input.attributes_manager
-        session_attr = attribute_manager.session_attributes
+        session_attr = handler_input.attributes_manager.session_attributes
         slot_values = get_slot_values(
             handler_input.request_envelope.request.intent.slots)
         request_type = slot_values['request']['resolved']
@@ -219,13 +218,12 @@ class CocktailWithIngredientHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         logging.info('In CocktailWithIngredientIntentHandler')
-        attribute_manager = handler_input.attributes_manager
-        session_attr = attribute_manager.session_attributes
+        session_attr = handler_input.attributes_manager.session_attributes
         filled_slots = handler_input.request_envelope.request.intent.slots
         slot_values = get_slot_values(filled_slots)
+        logging.info(slot_values)
         ingredient_1 = slot_values['ingredient_one']['resolved']
         ingredient_2 = slot_values['ingredient_two']['resolved']
-        logging.info(slot_values)
         api_request_1 = build_url(api,
                                   'filter',
                                   api_category='i',
@@ -358,11 +356,14 @@ class YesMoreInfoIntentHandler(AbstractRequestHandler):
                     updated_intent='AskForCocktail')).response
         elif session_attr['current_intent'] == 'FilterIntent':
             drink_list = session_attr['filtered_drinks']
-            if len(drink_list) <= 4:
+            if len(drink_list) < 4:
                 speech = ', '.join(drink_list)
             else:
                 drink_samples = random.sample(drink_list, 3)
-                speech = ', '.join(drink_samples)
+                speech = get_speech('DRINK_LIST').format(drink_samples[0],
+                                                         drink_samples[1],
+                                                         drink_samples[2]
+                                                         )
         handler_input.response_builder.speak(
             speech).set_should_end_session(False)
         return handler_input.response_builder.response
@@ -393,23 +394,25 @@ def filter_drinks(api_request_1, api_request_2, filter_1, filter_2):
     try:
         response_1 = http_get(api_request_1)
         response_2 = http_get(api_request_2)
-        logging.info(response_1)
-        logging.info(response_2)
+        logger.info(response_1)
+        logger.info(response_2)
         drinks_1 = [entry['strDrink'] for entry in response_1['drinks']]
         drinks_2 = [entry['strDrink'] for entry in response_2['drinks']]
-        common_drinks = (set(drinks_1) & set(drinks_2))
-        if len(common_drinks) > 4:
+        drinks_intersection = (set(drinks_1) & set(drinks_2))
+        n_drinks = len(drinks_intersection)
+        if n_drinks > 4:
             speech = get_speech('ASK_DRINK_LISTING_EXAMPLE').format(
-                len(common_drinks),
+                len(drinks_intersection),
                 filter_1,
                 filter_2
                 )
-        elif len(common_drinks) == 0:
+        elif n_drinks == 0:
             speech = get_speech('INGREDIENT_EXCEPTION').format(filter_1,
-                                                               filter_2)
+                                                               filter_2
+                                                               )
         else:
             speech = get_speech('ASK_DRINK_LISTING').format(
-                len(common_drinks),
+                n_drinks,
                 filter_1,
                 filter_2
                 )
@@ -417,9 +420,9 @@ def filter_drinks(api_request_1, api_request_2, filter_1, filter_2):
         speech = get_speech('INGREDIENT_EXCEPTION').format(filter_1,
                                                            filter_2
                                                            )
-        common_drinks = set()
-        logging.info("In filter function: message: {}".format(str(e)))
-    return speech, list(common_drinks)
+        drinks_intersection = set()
+        logger.info("In filter function: message: {}".format(str(e)))
+    return speech, list(drinks_intersection)
 
 
 # benutzen AskForCocktailIntent und YesIntent

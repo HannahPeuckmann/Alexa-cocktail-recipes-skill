@@ -11,6 +11,7 @@
 	"ASK_INSTRUCTIONS": ["Do you want to hear the instructions?", "Should I read you the instructions?", "Do you want to know the instructions?"],
 	"ASK_DRINK_LISTING_EXAMPLE": ["I found {} cocktails with {} and {}. Do you want me to give you three suggestions?", "I know {} cocktails with {} and {}. I could give you three examples?", "There are {} cocktails that have {} and {}. Should I list the three best ones?"],
 	"ASK_DRINK_LISTING": ["I found {} cocktails with {} and {}. Do you want me to list them for you?", "I know {} cocktails with {} and {}. Do You want to hear them?", "There are {} cocktails that have {} and {}. Should I list them for you?"],
+	"DRINK_LIST": ["{}, {}, and {}.", "On my list are {}, {} and {}."],
 	"ACCEPT_NO": ["Okay, maybe next time!", "Maybe I can help you with something else, ask for usage or help to get infos on how to use this skill.", "Okay"],
 	"GIVE_INGREDIENTS": ["You need {} ingredients to make a {}: {}. ", "{} ingredients are needed for a {}: {}."],
 	"GIVE_INSTRUCTIONS": ["Here are the instructions for making a {}: You need {}.", "To make a {}, you need {}.","The instructions for {} are the following: You need {}."],
