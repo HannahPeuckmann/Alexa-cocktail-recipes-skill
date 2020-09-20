@@ -9,6 +9,7 @@
 %set page header and footer
 \usepackage{fancyhdr}
 \usepackage{dialogue}
+\usepackage{attrib}
 \pagestyle{fancy}
 \lhead{Sex On The Beach}
 \rhead{\today}
@@ -165,7 +166,11 @@ We are happy you decided to use the sex on the beach Alexa skill. Our skill is d
 Our skill has many functionalities; You can ask for the ingredient list and instructions for a specific cocktail, and if you can’t decide which glas your cocktail looks best in, you can ask Alexa which glas a cocktail is served in. Furthermore if you want to have more infos on a specific ingredient you can also ask for infos on that. If you have ingredients you prefer in your cocktails, you can ask Alexa for cocktails that contain those, maybe she knows some recipes, maybe not. If you don’t have any inspiration for your cocktail party yet, you can also ask Alexa to suggest you a cocktail.
 If you need a reminder on how to use the skill, you can just ask Alexa for help or usage. And last but not least, if you need to know how much gin you need in a gin and tonic, Alexa can handle that too.
 \\
+\textbf{Users Manual 2} 
 
+We are happy you decided to use the 'Sex on the Beach' Alexa skill. Sex on the Beach is designed around cocktails. We seek to provide you with all information on cocktails you may need. To invoke the skill simply say "Open sex on the beach".
+Our skill has many functionalities; You can ask for the ingredient list and instructions of specific cocktails. If you can’t decide which glas your cocktail looks best in, you can ask Alexa how to serve it. Furthermore if you want to know more about a specific ingredient, you can ask for information on that. If you prefer certain ingredients, you can ask Alexa for cocktails that contain those. Maybe she knows some recipes, maybe she doesn't. Also if you need inspiration for your next cocktail party, you can ask Alexa for some suggestions. Last but not least, if you want to know how much gin you need for a gin tonic, Sex on the Beach can handle that as well.
+If you need a reminder on how to use the skill, don't hesitate to ask for help or usage information. \\ \\
 Example requests you can ask our skill to get familiar:
 \begin{itemize}
 
@@ -187,7 +192,7 @@ Example requests you can ask our skill to get familiar:
 \end{adjustwidth}
 
 Testpersonen:
-    Karla, Emma, evtl Lisa, evtl Catalina, 
+    Karla, Carlotta
 
 \subsection{Auswertung}
 \textbf{Testperson Karla}
@@ -287,8 +292,107 @@ I am sorry, I can't handle this request.
 Der Dialog wurde oft durch speech to text fehler gestört, die teils schlechte spracherkennung ist zum Teil wohl auch dem Umstand geschuldet, dass die Testperson keine Englischemuttersprachlerin ist.
 Bis auf einen Fehler sind alle durch speech to text getriggert worden.
 Eine wichtige Verbesserung wäre den RandomCocktailIntent dadurch zu erweitern dass er durch Anfragen wie "sugges me another" ebenfalls getriggert wird. Das lässt sich villt relativ einfach im Sprachmodell lösen.
-Eine weitere Verbesserung die in der Lambda Funktion passieren muss; Wenn Alexa bei der Suche nach Cocktails nur einen findet anstatt mehrerer, diesen gefundenen Cocktail zum session attribut machen.
+Eine weitere Verbesserung die in der Lambda Funktion passieren muss; Wenn Alexa bei der Suche nach Cocktails nur einen findet anstatt mehrerer, diesen gefundenen Cocktail zum session attribut machen. \\
 
+\textbf{Testperson Carlotta}
+\begin{dialogue}
+	\speak{CARLOTTA} sex on the beach
+	\speak{ALEXA} Welcome to Sex on the beach
+	\speak{CARLOTTA} what kind of cocktail should i make myself
+	\speak{ALEXA} I am sorry, I can't handle this request. \\
+	\direct{Anfrage wird nicht vom Interaktionsmodell abgedeckt. Wäre Zuständigkeit des RandomCocktailIntents.}
+	\attrib{1}
+	\speak{CARLOTTA} what should i drink
+	\speak{ALEXA} I think a Lemon Drop sounds good. Do you want me to read you the ingredients?
+	\speak{CARLOTTA} yes
+	\speak{ALEXA} 3 ingredients are needed for a Lemon Drop: Absolut Vodka, Cointreau, Lemon.
+	\speak{CARLOTTA} what's the measurement of the
+	\speak{ALEXA} I am sorry, I can't handle this request. \\
+	\direct{Speech-to-Text Fehler, aber die Anfrage wird auch nicht vom Interaktionsmodell abgedenkt. Wäre Zuständigkeit des MeasureIntents.}
+	\attrib{2}
+	\speak{CARLOTTA} how do i mix a lemon drop
+	\speak{ALEXA} I am sorry, I can't handle this request. \\
+	\direct{Anfrage wird nicht vom Interaktionsmodell abgedeckt. Wäre Zuständigkeit des AskForCocktailIntents.}
+	\attrib{3}
+	\speak{CARLOTTA} how do i surf a serve and whiskey sour
+	\speak{ALEXA} For a Lemon Drop a Cocktail glass is the right choice \\
+	\direct{Aufgrund der Formulierung ist nicht klar, ob das Glas oder das Rezept für den Cocktail erfragt wird. Es wird der GlassIntent getriggert, aber der Cocktail nicht erkannt, somit wird der vorherige 'aktuelle' Cocktail aus den Session Attributen verwendet. Könnte mit dem Speech-to-Text Fehler zusammenhängen.}
+	\attrib{4}
+	\speak{CARLOTTA} what other what other kinds of cocktails are served in an cocktail
+	\speak{ALEXA} I am sorry, I can't handle this request. \\
+	\direct{Die gewünschte Funktionalität ist nicht eingebaut. Der Speech-to-Text Fehler hat somit keine Auswirkungen.}
+	\attrib{5}
+	\speak{CARLOTTA} what's in an moscow mule
+	\speak{ALEXA} You can search for cocktails by ingredients or by name. \\
+	\direct{Request scheitert aufgrund des Speech-to-Text Fehlers}
+	\attrib{6}
+	\speak{CARLOTTA} look for moscow mule
+	\speak{ALEXA} what do you want me to look up, instructions , ingredients or both?
+	\speak{CARLOTTA} both please
+	\speak{ALEXA} Here are the instructions for making a Moscow mule: You need 2 oz Vodka, 2 oz Lime juice, 8 oz Ginger ale. Combine vodka and ginger beer in a highball glass filled with ice. Add lime juice. Stir gently. Garnish.
+	\speak{CARLOTTA} what kind of cocktail do i serve my friends
+	\speak{ALEXA} Moscow mule is served in a Copper Mug. \\
+	\direct{Anfrage wird nicht vom Interaktionsmodell abgedeckt. Wäre Zuständigkeit des RandomCocktailIntents, aber der GlassIntent wird durch die Formulierung getriggert.}
+	\attrib{7}
+	\speak{CARLOTTA} what's kind of cocktail should i make tonight
+	\speak{ALEXA} I am sorry, I can't handle this request. \\
+	\direct{Anfrage wird nicht vom Interaktionsmodell abgedeckt. Wäre Zuständigkeit des RandomCocktailIntents.}
+	\attrib{8}
+	\speak{CARLOTTA} can you suggest an cocktail for me please
+	\speak{ALEXA} I am sorry, I can't handle this request. \\
+	\direct{Request scheitert aufgrund des Speech-to-Text Fehlers}
+	\attrib{9}
+	\speak{CARLOTTA} in what's kinds of cocktails is vodka
+	\speak{ALEXA} You can search for cocktails by ingredients or by name.\\
+	\direct{Anfrage wird nicht vom Interaktionsmodell abgedeckt. Wäre Zuständigkeit des CocktailWithIngredientIntents.}
+	\attrib{10}
+	\speak{CARLOTTA} how do i make a pina colada cocktail
+	\speak{ALEXA} what do you want me to look up, instructions , ingredients or both?
+	\speak{CARLOTTA} instructions please
+	\speak{ALEXA} I am sorry, I don't have any information about Pina colada cocktail \\
+	\direct{Wegen des Interaktionsmodells wird der Cocktailname in der Anfrage falsch interpretiert, dadurch wird nicht die richtige API-Anfrage gestellt.}
+	\attrib{11}
+	\speak{CARLOTTA} what's a easy cocktail to make
+	\speak{ALEXA} what do you want me to look up, instructions , ingredients or both? \\
+	\direct{Die gewünschte Funktionalität ist nicht eingebaut, bzw. wird die Anfrage nicht vom Interaktionsmodell abgedeckt, wenn man die Zuständigkeit dem RandomCocktailIntent zuordnet. Aufgrund der Formulierung wird der AskForCocktailIntent getriggert.}
+	\attrib{12}
+	\speak{CARLOTTA} both
+	\speak{ALEXA} I have never heard of a easy cocktail, sorry 
+	\speak{CARLOTTA} name your name your favorite cocktail
+	\speak{ALEXA} You can't do anython wrong with a Z********d Do you want to know the ingredients?
+	\speak{CARLOTTA} yes please
+	\speak{ALEXA} You need 3 ingredients to make a Z********d: Chambord raspberry liqueur, Vodka, Soda water.
+	\speak{CARLOTTA} what kind of cocktail is best for a party
+	\speak{ALEXA} I am sorry, something went wrong. \\
+	\direct{Die gewünschte Funktionalität ist nicht eingebaut, bzw. wird die Anfrage nicht vom Interaktionsmodell abgedeckt, wenn man die Zuständigkeit dem RandomCocktailIntent zuordnet.}
+	\attrib{13}
+	\speak{CARLOTTA} how much vodka is in a moscow mule
+	\speak{ALEXA} You need 2 oz vodka for a Moscow mule.
+	\speak{CARLOTTA} how do i make a diem
+	\speak{ALEXA} what do you want me to look up, instructions , ingredients or both?
+	\speak{CARLOTTA} ingredients
+	\speak{ALEXA} I don't know anything about diem, I am sorry. \\
+	\direct{Speech-to-Text Fehler beim Cocktailnamen.}
+	\attrib{14}
+	\speak{CARLOTTA} how much ingredients do i need for a bloody mary for four pie
+	\speak{ALEXA} I am sorry, something went wrong. \\
+	\direct{Die gewünschte Funktionalität ist nicht eingebaut. Der Speech-to-Text Fehler hat somit keine Auswirkungen.}
+	\attrib{15}
+	\speak{CARLOTTA} how do i make an alcoholic cocktail
+	\speak{ALEXA} Which ingredient do you want in your non alcoholic cocktail \\
+	\direct{Trotz des Speech-to-Text Fehlers wird der richtige Intent getriggert.}
+	\speak{CARLOTTA} orange juice
+	\speak{ALEXA} There are 8 cocktails that have orange juice and no alcohol. Should I list the three best ones?
+	\speak{CARLOTTA} yes
+	\speak{ALEXA} Apello, Pysch Vitamin Light, Fruit Shake
+	\speak{CARLOTTA} can you repeat
+	\speak{ALEXA} I am sorry, I can't handle this request. \\
+	\direct{Die gewünschte Funktionalität ist nicht eingebaut.}
+	\attrib{16}
+	\speak{CARLOTTA} quit
+\end{dialogue}
+
+Insgesamt werden 29 Requests (abgesehen vom Cancel und Launch Request) gestellt. Bei 16 Requests sind Fehler aufgetreten. Vier von ihnen (4, 6, 9, 14) sind durch Schwierigkeiten der Spracherkennung entstanden und somit nicht von uns behebbar. Für neun der Fehler (1,2,3,7,8,10,11,12,13) ist das Interaktionsmodell verantwortlich, welches wir zur Behebung problemlos erweitern können sollten. In fünf Fällen kann die Anfrage nicht richtig bearbeitet werden, weil die gewünschte Funktion nicht implementiert ist. Dazu gehört das Filtern von Cocktails nach Gläsern (5), die Suche nach 'einfachen' Cocktails (12), die Suche nach Cocktails für bestimmte Anlässe (13), die Berechnung der Zutatenmenge nach Anzahl der Personen (15) und das Wiederholen des letzten Speech-Outputs (16).
 \subsection{Ausblick}
 Code besser strukturieren, immer noch zu viel doppelter code\\
 mehr mit slot to elicit bzw intent changing von lambda aus arbeiten\\
