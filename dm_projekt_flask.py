@@ -293,18 +293,13 @@ class RandomCocktailIntentHandler(AbstractRequestHandler):
 
         attribute_manager = handler_input.attributes_manager
         session_attr = attribute_manager.session_attributes
-
         try:
             api_request = build_url(api, 'random')
             response = http_get(api_request)
             drink = response['drinks'][0]['strDrink']
             session_attr['current_intent'] = 'RandomCocktailIntent'
             session_attr['drink'] = drink
-            session_attr['random_cocktail_ingredients'] = False
-            session_attr['random_cocktail_instructions'] = False
-            speech = '{}{}'.format(
-                get_speech('SUGGESTION_SPEECH').format(drink),
-                get_speech('ASK_INGREDIENTS'))
+            speech = get_speech('SUGGESTION_SPEECH').format(drink)
         except Exception as e:
             speech = get_speech('GENERIC_EXCEPTION')
             logger.info("Intent: {}: message: {}".format(
@@ -358,22 +353,9 @@ class YesMoreInfoIntentHandler(AbstractRequestHandler):
                     ' changing to AskForCocktailIntentHandler')
         session_attr = handler_input.attributes_manager.session_attributes
         if session_attr['current_intent'] == 'RandomCocktailIntent':
-            drink = session_attr['drink']
-            api_request = build_url(api,
-                                    'search',
-                                    api_category='s',
-                                    api_keyword=drink
-                                    )
-            request_key = parse_request('ingredients')
-            try:
-                response = http_get(api_request)
-                logger.info(response)
-                speech = build_response(request_key, response, drink)
-            except Exception as e:
-                speech = get_speech('GENERIC_EXCEPTION')
-                logger.info("Intent: {}: message: {}".format(
-                    handler_input.request_envelope.request.intent.name, str(
-                        e)))
+            return handler_input.response_builder.add_directive(
+                DelegateDirective(
+                    updated_intent='AskForCocktail')).response
         elif session_attr['current_intent'] == 'FilterIntent':
             drink_list = session_attr['filtered_drinks']
             if len(drink_list) <= 4:
