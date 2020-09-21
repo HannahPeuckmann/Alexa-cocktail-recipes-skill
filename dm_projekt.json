@@ -84,6 +84,9 @@
                         }
                     ],
                     "samples": [
+                        "suggest me another {drink_synonym}",
+                        "suggest me something else",
+                        "Do you have another suggestion",
                         "Another {drink_synonym} idea",
                         "Another {drink_synonym} suggestion",
                         "I want a new {drink_synonym}",
