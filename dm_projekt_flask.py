@@ -93,6 +93,7 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
             speech = get_speech('COCKTAIL_EXCEPTION').format(drink)
             logger.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
+        session_attr['last_speech'] = speech
         handler_input.response_builder.speak(
             speech).set_should_end_session(False)
         return handler_input.response_builder.response
@@ -125,7 +126,7 @@ class MeasureIntentHandler(AbstractRequestHandler):
         try:
             response = http_get(api_request)
             logger.info(response)
-            ingredient_keys = ['strIngredient' + str(i) for i in range(1, 16)]
+            ingredient_keys = parse_request('ingredients')
             ingredient_n = 0
             for k in ingredient_keys:
                 current_ingredient = response['drinks'][0][k]
@@ -151,6 +152,7 @@ class MeasureIntentHandler(AbstractRequestHandler):
             speech = get_speech('GENERIC_EXCEPTION')
             logger.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
+        session_attr['last_speech'] = speech
         handler_input.response_builder.speak(
             speech).set_should_end_session(False)
         return handler_input.response_builder.response
@@ -188,6 +190,7 @@ class GlassIntentHandler(AbstractRequestHandler):
             speech = get_speech('GLASS_EXCEPTION').format(drink)
             logger.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
+        session_attr['last_speech'] = speech
         handler_input.response_builder.speak(
             speech).set_should_end_session(False)
         return handler_input.response_builder.response
@@ -224,6 +227,7 @@ class CocktailWithIngredientHandler(AbstractRequestHandler):
                                                                 ingredient_1,
                                                                 ingredient_2
                                                                 )
+        session_attr['last_speech'] = speech
         handler_input.response_builder.speak(speech).ask(speech)
         return handler_input.response_builder.response
 
@@ -258,6 +262,7 @@ class NonAlcoholicCocktailIntentHandler(AbstractRequestHandler):
                                                                 ingredient,
                                                                 'no alcohol'
                                                                 )
+        session_attr['last_speech'] = speech
         handler_input.response_builder.speak(speech).ask(speech)
         return handler_input.response_builder.response
 
@@ -285,6 +290,7 @@ class RandomCocktailIntentHandler(AbstractRequestHandler):
             speech = get_speech('GENERIC_EXCEPTION')
             logger.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
+        session_attr['last_speech'] = speech
         handler_input.response_builder.speak(speech).ask(speech)
         return handler_input.response_builder.response
 
@@ -299,6 +305,7 @@ class IngredientdescriptionHandler(AbstractRequestHandler):
         logger.info('In IngredientDescriptionHandler')
         filled_slots = handler_input.request_envelope.request.intent.slots
         slot_values = get_slot_values(filled_slots)
+        session_attr = handler_input.attributes_manager.session_attributes
         ingredient = slot_values['ingredient_drink']['resolved']
         api_request = build_url(api,
                                 'search',
@@ -317,6 +324,7 @@ class IngredientdescriptionHandler(AbstractRequestHandler):
             description = get_speech("UNKNOWN_INGREDIENT").format(ingredient)
             logger.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
+        session_attr['last_speech'] = description
         handler_input.response_builder.speak(
             description).set_should_end_session(False)
         return handler_input.response_builder.response
@@ -347,6 +355,7 @@ class YesMoreInfoIntentHandler(AbstractRequestHandler):
                                                          drink_samples[1],
                                                          drink_samples[2]
                                                          )
+                session_attr['last_speech'] = speech
         handler_input.response_builder.speak(
             speech).set_should_end_session(False)
         return handler_input.response_builder.response
@@ -364,6 +373,26 @@ class NoMoreInfoIntentHandler(AbstractRequestHandler):
         logger.info("In NoMoreInfoIntentHandler")
 
         speech = get_speech('ACCEPT_NO')
+        handler_input.response_builder.speak(speech).set_should_end_session(
+            False)
+        return handler_input.response_builder.response
+
+
+class RepeatIntentHandler(AbstractRequestHandler):
+    """Handler for repetition request"""
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return is_intent_name("AMAZON.RepeatIntent")(handler_input)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        logger.info("In RepeatIntentHandler")
+        session_attr = handler_input.attributes_manager.session_attributes
+        if session_attr['last_speech']:
+            speech = session_attr['last_speech']
+        else:
+            speech = get_speech('REPEAT_EXCEPTION')
         handler_input.response_builder.speak(speech).set_should_end_session(
             False)
         return handler_input.response_builder.response
@@ -452,10 +481,8 @@ def build_response(request_key, response, drink):
 def parse_request(request_type):
     if request_type == 'ingredients':
         request_key = ['strIngredient' + str(i) for i in range(1, 16)]
-        logger.info(request_key)
     else:  # both
         request_key = ([i for i in range(1, 16)], 'strInstructions')
-        logger.info(request_key)
     return request_key
 
 
@@ -552,6 +579,7 @@ sb.add_request_handler(RandomCocktailIntentHandler())
 sb.add_request_handler(IngredientdescriptionHandler())
 sb.add_request_handler(YesMoreInfoIntentHandler())
 sb.add_request_handler(NoMoreInfoIntentHandler())
+sb.add_request_handler(RepeatIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(FallbackIntentHandler())
