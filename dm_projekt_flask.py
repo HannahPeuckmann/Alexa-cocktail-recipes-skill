@@ -4,32 +4,30 @@ import six
 from nltk.tokenize import sent_tokenize
 import json
 import random
+from typing import Dict, Any
 from flask import Flask
-from ask_sdk_core.skill_builder import SkillBuilder
 from flask_ask_sdk.skill_adapter import SkillAdapter
-
-
-from ask_sdk_model.services import ServiceException
+from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.utils import is_request_type, is_intent_name
 from ask_sdk_core.handler_input import HandlerInput
-
-
-from ask_sdk_model import Response
-from ask_sdk_core.dispatch_components import (
-    AbstractRequestHandler, AbstractExceptionHandler,
-    AbstractResponseInterceptor, AbstractRequestInterceptor)
-from typing import Union, Dict, Any, List
-from ask_sdk_model.dialog import (
-    ElicitSlotDirective, DelegateDirective)
-from ask_sdk_model import (
-    Response, IntentRequest, DialogState, SlotConfirmationStatus, Slot)
+from ask_sdk_model import (Response, Slot)
+from ask_sdk_model.dialog import (ElicitSlotDirective, DelegateDirective)
 from ask_sdk_model.slu.entityresolution import StatusCode
-
-from basic_handlers import HelpIntentHandler, CancelOrStopIntentHandler, \
-                           FallbackIntentHandler, SessionEndedRequestHandler, \
-                           CatchAllExceptionHandler, RequestLogger, \
-                           ResponseLogger
+from basic_handlers import (HelpIntentHandler,
+                            CancelOrStopIntentHandler,
+                            FallbackIntentHandler,
+                            SessionEndedRequestHandler,
+                            CatchAllExceptionHandler,
+                            RequestLogger,
+                            ResponseLogger
+                            )
+# from ask_sdk_model.services import ServiceException
+# from ask_sdk_core.dispatch_components import (
+#     AbstractRequestHandler, AbstractExceptionHandler,
+#     AbstractResponseInterceptor, AbstractRequestInterceptor)
+# from ask_sdk_model import (
+#     Response, IntentRequest, DialogState, SlotConfirmationStatus, Slot)
 
 
 # create logger, logger settings
@@ -74,13 +72,8 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
         slot_values = get_slot_values(
             handler_input.request_envelope.request.intent.slots)
         request_type = slot_values['request']['resolved']
-        drink = None
-        if slot_values['drink']['resolved']:
-            drink = slot_values['drink']['resolved']
-            session_attr['drink'] = drink
-        elif 'drink' in session_attr:
-            drink = session_attr['drink']
-        else:
+        drink = get_drink(session_attr, slot_values)
+        if drink is None:
             prompt = get_speech("ASK_COCKTAIL")
             return handler_input.response_builder.speak(
                 prompt).ask(prompt).add_directive(
@@ -113,21 +106,17 @@ class MeasureIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         logger.info('In MeasureIntentHandler')
-        attribute_manager = handler_input.attributes_manager
-        session_attr = attribute_manager.session_attributes
+        session_attr = handler_input.attributes_manager.session_attributes
         slot_values = get_slot_values(
             handler_input.request_envelope.request.intent.slots)
         ingredient = slot_values['ingredient']['resolved']
-        if slot_values['drink']['resolved']:
-            drink = slot_values['drink']['resolved']
-            session_attr['drink'] = drink
-        elif 'drink' in session_attr:
-            drink = session_attr['drink']
-        else:
+        drink = get_drink(session_attr, slot_values)
+        if drink is None:
             prompt = get_speech("ASK_COCKTAIL")
             return handler_input.response_builder.speak(
                 prompt).ask(prompt).add_directive(
                     ElicitSlotDirective(slot_to_elicit='drink')).response
+        session_attr['drink'] = drink
         api_request = build_url(api,
                                 'search',
                                 api_category='s',
@@ -138,7 +127,6 @@ class MeasureIntentHandler(AbstractRequestHandler):
             logger.info(response)
             ingredient_keys = ['strIngredient' + str(i) for i in range(1, 16)]
             ingredient_n = 0
-            logger.info(ingredient_keys)
             for k in ingredient_keys:
                 current_ingredient = response['drinks'][0][k]
                 if current_ingredient is None or current_ingredient == '':
@@ -176,20 +164,16 @@ class GlassIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         logging.info('In GlassIntentHandler')
-        attribute_manager = handler_input.attributes_manager
-        session_attr = attribute_manager.session_attributes
+        session_attr = handler_input.attributes_manager.session_attributes
         slot_values = get_slot_values(
             handler_input.request_envelope.request.intent.slots)
-        if slot_values['drink']['resolved']:
-            drink = slot_values['drink']['resolved']
-            session_attr['drink'] = drink
-        elif 'drink' in session_attr:
-            drink = session_attr['drink']
-        else:
+        drink = get_drink(session_attr, slot_values)
+        if drink is None:
             prompt = get_speech("ASK_COCKTAIL")
             return handler_input.response_builder.speak(
                 prompt).ask(prompt).add_directive(
                     ElicitSlotDirective(slot_to_elicit='drink')).response
+        session_attr['drink'] = drink
         api_request = build_url(api,
                                 'search',
                                 api_category='s',
@@ -253,8 +237,7 @@ class NonAlcoholicCocktailIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         logging.info('In NonAlcoholicCocktailIntentHandler')
-        attribute_manager = handler_input.attributes_manager
-        session_attr = attribute_manager.session_attributes
+        session_attr = handler_input.attributes_manager.session_attributes
         filled_slots = handler_input.request_envelope.request.intent.slots
         slot_values = get_slot_values(filled_slots)
         ingredient = slot_values['ingredient']['resolved']
@@ -476,7 +459,18 @@ def parse_request(request_type):
     return request_key
 
 
-# benutzen AskForCocktailIntent, CocktailwithIngredint, Ingredientdescription, NonalcoholicCocktail,
+# benutzen AskForCocktailIntent, GlassIntent, MeasureIntent
+def get_drink(session_attributes, slot_values):
+    if slot_values['drink']['resolved']:
+        return slot_values['drink']['resolved']
+    elif 'drink' in session_attributes:
+        return session_attributes['drink']
+    else:
+        return None
+
+
+# benutzen AskForCocktailIntent, CocktailwithIngredint,
+# Ingredientdescription, NonalcoholicCocktail
 def get_slot_values(filled_slots):
     """Return slot values with additional info."""
     # type: (Dict[str, Slot]) -> Dict[str, Any]
@@ -485,12 +479,13 @@ def get_slot_values(filled_slots):
     for key, slot_item in six.iteritems(filled_slots):
         name = slot_item.name
         try:
-            status_code = \
-                slot_item.resolutions.resolutions_per_authority[0].status.code
+            resolutions_per_authority = \
+                slot_item.resolutions.resolutions_per_authority[0]
+            status_code = resolutions_per_authority.status.code
             if status_code == StatusCode.ER_SUCCESS_MATCH:
                 slot_values[name] = {
                     "synonym": slot_item.value,
-                    "resolved": slot_item.resolutions.resolutions_per_authority[0].values[0].value.name,
+                    "resolved": resolutions_per_authority.values[0].value.name,
                     "is_validated": True,
                 }
             elif status_code == StatusCode.ER_SUCCESS_NO_MATCH:
