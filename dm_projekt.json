@@ -138,8 +138,8 @@
                         }
                     ],
                     "samples": [
-                        "i want {drink_synonym} with {ingredient_one} and {ingredient_two}",
                         "give me a {drink_synonym} with {ingredient_one} and {ingredient_two}",
+                        "i want {drink_synonym} with {ingredient_one} and {ingredient_two}",
                         "i want to make {drink_synonym} with {ingredient_one} and {ingredient_two}",
                         "give me {drink_synonym} with {ingredient_one} and {ingredient_two}",
                         "give me {drink_synonym} with {ingredient_one}",
@@ -251,6 +251,10 @@
                         "How much {ingredient} do i need for a {drink}",
                         "How much {ingredient} do i need for this {drink_synonym}"
                     ]
+                },
+                {
+                    "name": "AMAZON.RepeatIntent",
+                    "samples": []
                 }
             ],
             "types": [
