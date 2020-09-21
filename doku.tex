@@ -6,6 +6,8 @@
 \usepackage{amssymb}
 \usepackage{titlesec}
 \usepackage{makeidx}
+\usepackage{listings}
+\lstset{basicstyle=\tiny}
 %set page header and footer
 \usepackage{fancyhdr}
 \usepackage{dialogue}
@@ -150,9 +152,16 @@ Der Intent gibt eine kurze Beschreibung einer Zutat aus. Der Intent hat einen sl
 \subsection{CocktailWithIngredientIntent}
 Der Cocktail-With-Ingredient-Intent dient zum Filtern der Cocktails nach Zutaten. Es werden zwei Slots, 'ingredient\_one' und 'ingredient\_two', benötigt, um den Intent zu erfüllen. Da die API keine freie Funktion zum Filtern mit mehreren Zutaten anbietet, muss für beide Zutaten ein seperater API-Aufruf zum Cocktail-Filtern gemacht werden. Dann wird die Schnittmenge der beiden resultierenden Cocktail-Listen gebildet und als Session Attribut gespeichert. Die Ausgabe des Intents ist die Information, wie viele Cocktails gefunden wurden, mit der Frage, ob eine Auswahl von drei Cocktails aufgelistet werden soll. Die User*innen sollen mit der Anwort dann entweder den Yes-Intent oder No-Intent triggern. Wird der Yes-Intent folgend auf den Cocktail-With-Ingredient-Intent aufgerufen, werden aus der Cocktail-Liste in den Session Attributes drei Cocktails zufällig ausgewählt und den User*innen aufgezählt. 
 \subsection{NonAlcoholicCocktailIntent}
+Der Non-Alcoholic-Cocktail-Intent filtert Cocktails, die nicht-alkoholisch sind und eine gewünschte Zutat enthalten. Die Funktionsweise ist somit die gleiche, wie die des Cocktail-With-Ingredient-Intents, mit dem Unterschied, dass es nur einen Slot gibt, der gefüllt werden muss. Da der API-Aufruf für eine Auflistung von nicht-alkoholischen Cocktails immer gleich ist und hartcodiert werden kann, braucht man nur den Wert des Slots 'ingredient', um den zweiten Filter anzuwenden. Die Liste der resultierenden Cocktails ist dann wie beim Cocktail-With-Ingredient-Intent die Schnittmenge von nicht-alkoholischen Cocktails und den Cocktails mit der genannten Zutat und wird als Session Attribut gespeichert. Die Ausgabe des Intents ist ebenso die Anzahl der gefundenen Cocktails, sowie die Frage, ob eine Auswahl von drei aufgezählt werden soll, was die User*innen zum Aufruf des Yes- oder des No-Intents leiten soll. Der Yes-Intent gibt eine zufällige Auflistung von drei Cocktails der Liste in den Session Attributen aus.
 \subsection{GlassIntent}
 Der Intent gibt eine kurze Information darüber aus in welchem Glas ein Cocktail üblicherweise serviert wird. Der Intent hat zwei slots die beide nicht obligtaorisch sind. Der Intent arbeitet ebenfalls mit session atributes, ist der slot 'drink' nicht gefüllt wird auf das session attribute zurückgrgriffen, falls benutzerinnen gerade aus einem Anderen Intent kommen, beispielsweise dem askforcocktailIntent ist dieses bereits gefüllt. Ist der slot nicht gefüllt und es existert kein session attribute wird der slot gefüllt, indem aus der lambda funktion eine Anfrage an Benutzer*Innen gestellt wird. Dieser Cocktail wird dann zum session attribute. Hat die datenbank die gewünschten Informatinen nicht werden die Benutzer*Innen darüber informiert.
 \subsection{MeasureIntent}
+Der Measure-Intent dient zur Ausgabe der Menge einer einzelnen Zutat, die für einen spezifischen Cocktail benötigt wird.
+Der Intent hat zwei Slots, 'ingredient' und 'drink', von denen der 'ingredient' Slot obligatorisch zur Erfüllung des Intents ist. 
+Dieser Slot repräsentiert die Zutat, für die die Menge erfragt wird. Der 'drink' Slot repräsentiert den Cocktail und muss nur gefüllt werden,
+falls kein Session Attribut 'drink' existiert, das den dialog-aktuellen Cocktail gespeichert hat.
+Die Lambda-Funktion macht einen API-Aufruf mit dem Cocktailnamen und extrahiert die zugehörige Menge der erfragten Zutat.
+Wenn ein Wert eingetragen ist, wird dieser ausgeben. Ist dies nicht der Fall, wird ausgegeben, dass die Zutat nach belieben verwendet werden kann.
 
 \section{Projektabschluss, Evaluation}
 \subsection{Versuchsanordnung}
@@ -400,4 +409,10 @@ Code besser strukturieren, immer noch zu viel doppelter code\\
 mehr mit slot to elicit bzw intent changing von lambda aus arbeiten\\
 mehrsprachig, - schwierig wegen datenbank fehler in Übersetzung.\\
 Weitere Funktionen implementieren: Fragen nach Alkoholgehalt beantworten, Cocktailfilter nach Glas, Cocktails suchen nach verschiedenen Kriterien (z.B. schweregrad bzw. Anzahl der Zutaten) oder Anlässen, Berechnung der benötigten Zutatenmengen für verschiedene Personenanzahlen.
+
+\section{Code-Listing}
+\subsection{Lambda-Funktion}
+\lstinputlisting[language=Python]{dm_projekt_flask.py}
+\subsection{Lambda-Funktion: Basic-Handlers}
+\lstinputlisting[language=Python]{basic_handlers.py}
 \end{document}
