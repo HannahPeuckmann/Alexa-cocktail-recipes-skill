@@ -3,6 +3,7 @@
 	"WELCOME_REPROMT": ["You can ask me for cocktail recipes. For more infos on the usage of this skill ask for help."],
 	"COCKTAIL_EXCEPTION": ["I am sorry, I don't have any information about {}", "I don't know anything about {}, I am sorry.", "I have never heard of a {}, sorry"],
 	"GENERIC_EXCEPTION": ["I am sorry, something went wrong."],
+	"REPEAT_EXCEPTION": ["I'm sorry, I don't remeber that last thing I said.", "I am sorry, I am unable to repeat that.", "I'm very sorry I can't remember what I said."],
 	"ASK_COCKTAIL": ["which cocktail do you want me to look up?"],
 	"INGREDIENT_EXCEPTION": ["I am sorry, I can't find any cocktails with {} and {}.", "Ups, I don't know such exotic cocktails with {} and {}", "I don't know cocktails with {} and {}, I am sorry"],
 	"HANDLE_EXCEPTION": ["I am sorry, I can't handle this request."],
