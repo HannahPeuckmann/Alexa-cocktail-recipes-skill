@@ -1,9 +1,17 @@
+# Modulprojekt zum Seminar Dialogmodellierung
+# Alexa skill
+# Sara Derakhshani, Hannah Peuckmann
+# SoSe 2020
+# Classes of custom handlers for requests,
+# handler for launch request and additional required functions
+
 import logging
 import requests  # for http request
 import six
 from nltk.tokenize import sent_tokenize
 import json
 import random
+
 from typing import Dict, Any
 from flask import Flask
 from flask_ask_sdk.skill_adapter import SkillAdapter
@@ -47,11 +55,11 @@ class LaunchRequestHandler(AbstractRequestHandler):
     """Handler for Skill Launch."""
 
     def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
         return is_request_type("LaunchRequest")(handler_input)
 
     def handle(self, handler_input):
-        # type: (HandlerInput) -> Response
+        # messages are read from the json file 
+        # that contains the outsourced responses
         speech = get_speech('WELCOME_MSG')
         reprompt = get_speech('WELCOME_REPROMT')
         handler_input.response_builder.speak(
@@ -61,7 +69,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
 class AskForCocktailRequestHandler(AbstractRequestHandler):
     """ Handler for AskForCocktail intent, builds an Alexa response with
-        ingredients, recipe or both for the asked cocktail"""
+        ingredients, instruction or both for the asked cocktail"""
 
     def can_handle(self, handler_input):
         return is_intent_name("AskForCocktail")(handler_input)
@@ -72,27 +80,36 @@ class AskForCocktailRequestHandler(AbstractRequestHandler):
         slot_values = get_slot_values(
             handler_input.request_envelope.request.intent.slots)
         request_type = slot_values['request']['resolved']
+        # checks weather a cocktail was named in the request or
+        # a cocktail from a previous request is active
         drink = get_drink(session_attr, slot_values)
+        # if both do not apply, Alexa prompts the user to name
+        # a cocktail
         if drink is None:
             prompt = get_speech("ASK_COCKTAIL")
             return handler_input.response_builder.speak(
                 prompt).ask(prompt).add_directive(
                     ElicitSlotDirective(slot_to_elicit='drink')).response
+        # new cocktail is active now
         session_attr['drink'] = drink
         api_request = build_url(api,
                                 'search',
                                 api_category='s',
                                 api_keyword=drink
                                 )
+        # fugures out the kind of request, ingredient, description or both
         request_key = parse_request(request_type)
         try:
             response = http_get(api_request)
             logger.info(response)
+            # builds a response based on the request
             speech = build_response(request_key, response, drink)
         except Exception as e:
+            # the drink asked for is not in the database
             speech = get_speech('COCKTAIL_EXCEPTION').format(drink)
             logger.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
+        # safes response so it can be repeated by request
         session_attr['last_speech'] = speech
         handler_input.response_builder.speak(
             speech).set_should_end_session(False)
@@ -110,13 +127,19 @@ class MeasureIntentHandler(AbstractRequestHandler):
         session_attr = handler_input.attributes_manager.session_attributes
         slot_values = get_slot_values(
             handler_input.request_envelope.request.intent.slots)
+        # ingredient to look for
         ingredient = slot_values['ingredient']['resolved']
+        # checks if a cocktail is named by the user or is active
+        # from a previous request
         drink = get_drink(session_attr, slot_values)
+        # if both do not apply
         if drink is None:
+            # Alexa prompts the user to name for a drink
             prompt = get_speech("ASK_COCKTAIL")
             return handler_input.response_builder.speak(
                 prompt).ask(prompt).add_directive(
                     ElicitSlotDirective(slot_to_elicit='drink')).response
+        # new active drink
         session_attr['drink'] = drink
         api_request = build_url(api,
                                 'search',
@@ -139,6 +162,7 @@ class MeasureIntentHandler(AbstractRequestHandler):
                 measure_key = 'strMeasure' + ingredient_n
                 measure = response['drinks'][0][measure_key]
                 if measure is None:
+                    # no measure specified
                     speech = get_speech('GIVE_NO_MEASURE').format(ingredient,
                                                                   drink)
                 else:
@@ -146,12 +170,14 @@ class MeasureIntentHandler(AbstractRequestHandler):
                                                                ingredient,
                                                                drink)
             else:
+                # ingredient is not in the cocktail recipe
                 speech = get_speech('MEASURE_EXCEPTION').format(drink,
                                                                 ingredient)
         except Exception as e:
             speech = get_speech('GENERIC_EXCEPTION')
             logger.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
+        # safes response so it canbe repeated by request
         session_attr['last_speech'] = speech
         handler_input.response_builder.speak(
             speech).set_should_end_session(False)
@@ -169,12 +195,17 @@ class GlassIntentHandler(AbstractRequestHandler):
         session_attr = handler_input.attributes_manager.session_attributes
         slot_values = get_slot_values(
             handler_input.request_envelope.request.intent.slots)
+        # checks if a cocktail is named by the user or is active
+        # from a previous request
         drink = get_drink(session_attr, slot_values)
+        # if both do not apply
         if drink is None:
+            # Alexa prompts the user to name a cocktail
             prompt = get_speech("ASK_COCKTAIL")
             return handler_input.response_builder.speak(
                 prompt).ask(prompt).add_directive(
                     ElicitSlotDirective(slot_to_elicit='drink')).response
+        # new drink is active
         session_attr['drink'] = drink
         api_request = build_url(api,
                                 'search',
@@ -190,6 +221,7 @@ class GlassIntentHandler(AbstractRequestHandler):
             speech = get_speech('GLASS_EXCEPTION').format(drink)
             logger.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
+        # safes response to be repeated by request
         session_attr['last_speech'] = speech
         handler_input.response_builder.speak(
             speech).set_should_end_session(False)
@@ -200,7 +232,6 @@ class CocktailWithIngredientHandler(AbstractRequestHandler):
     """Handler for cocktail with ingredient intent."""
 
     def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
         return is_intent_name('CocktailWithIngredientIntent')(handler_input)
 
     def handle(self, handler_input):
@@ -211,22 +242,30 @@ class CocktailWithIngredientHandler(AbstractRequestHandler):
         logging.info(slot_values)
         ingredient_1 = slot_values['ingredient_one']['resolved']
         ingredient_2 = slot_values['ingredient_two']['resolved']
+        # api request for fist ingredient
         api_request_1 = build_url(api,
                                   'filter',
                                   api_category='i',
                                   api_keyword=ingredient_1
                                   )
+        # api request for second ingredient
         api_request_2 = build_url(api,
                                   'filter',
                                   api_category='i',
                                   api_keyword=ingredient_2
                                   )
         session_attr['current_intent'] = 'FilterIntent'
+        # intersection of both contains cocktails with both ingredients
         speech, session_attr['filtered_drinks'] = filter_drinks(api_request_1,
                                                                 api_request_2,
                                                                 ingredient_1,
                                                                 ingredient_2
                                                                 )
+        # if only one cocktail could be found,
+        # it becomes the new active cocktail
+        if len(session_attr['filtered_drinks']) == 1:
+            session_attr['drink'] = session_attr['filtered_drink'][0]
+        # safes response to be repeated by request
         session_attr['last_speech'] = speech
         handler_input.response_builder.speak(speech).ask(speech)
         return handler_input.response_builder.response
@@ -236,7 +275,6 @@ class NonAlcoholicCocktailIntentHandler(AbstractRequestHandler):
     """Handler for non alcoholic cocktail intent."""
 
     def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
         return is_intent_name('NonAlcoholicCocktailIntent')(handler_input)
 
     def handle(self, handler_input):
@@ -244,24 +282,33 @@ class NonAlcoholicCocktailIntentHandler(AbstractRequestHandler):
         session_attr = handler_input.attributes_manager.session_attributes
         filled_slots = handler_input.request_envelope.request.intent.slots
         slot_values = get_slot_values(filled_slots)
+        # ingredient to filter non alcoholic cocktails
         ingredient = slot_values['ingredient']['resolved']
         logging.info(slot_values)
+        # all cocktail that contain the ingredient
         api_request_i = build_url(api,
                                   'filter',
                                   api_category='i',
                                   api_keyword=ingredient
                                   )
+        # all non alcoholic cocktails
         api_request_a = build_url(api,
                                   'filter',
                                   api_category='a',
                                   api_keyword='Non_Alcoholic'
                                   )
         session_attr['current_intent'] = 'FilterIntent'
+        # intersection of both lists are non alcoholic filtered by the ingredient
         speech, session_attr['filtered_drinks'] = filter_drinks(api_request_i,
                                                                 api_request_a,
                                                                 ingredient,
                                                                 'no alcohol'
                                                                 )
+        # if only one cocktail could be found,
+        # it becomes the new active cocktail
+        if len(session_attr['filtered_drinks']) == 1:
+            session_attr['drink'] = session_attr['filtered_drink'][0]
+        # safes response to be repeated by request
         session_attr['last_speech'] = speech
         handler_input.response_builder.speak(speech).ask(speech)
         return handler_input.response_builder.response
@@ -282,14 +329,17 @@ class RandomCocktailIntentHandler(AbstractRequestHandler):
         try:
             api_request = build_url(api, 'random')
             response = http_get(api_request)
+            # api returns a random cocktail from the database
             drink = response['drinks'][0]['strDrink']
             session_attr['current_intent'] = 'RandomCocktailIntent'
+            # new drink is active
             session_attr['drink'] = drink
             speech = get_speech('SUGGESTION_SPEECH').format(drink)
         except Exception as e:
             speech = get_speech('GENERIC_EXCEPTION')
             logger.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
+        # safes response to be repeated by request
         session_attr['last_speech'] = speech
         handler_input.response_builder.speak(speech).ask(speech)
         return handler_input.response_builder.response
@@ -314,16 +364,21 @@ class IngredientdescriptionHandler(AbstractRequestHandler):
         try:
             response = http_get(api_request)
             logging.info(response)
+            # split description text into sentences to be able to response
+            # only with the first three sentences
             description = sent_tokenize(
                 response['ingredients'][0]['strDescription'])
+            # description has les than three sentences
             if len(description) > 3:
                 description = '.'.join(description[:2])
             else:
                 description = description[0]
         except Exception as e:
+            # ingredient not in the database
             description = get_speech("UNKNOWN_INGREDIENT").format(ingredient)
             logger.info("Intent: {}: message: {}".format(
                 handler_input.request_envelope.request.intent.name, str(e)))
+        # safes response to be repeated by request
         session_attr['last_speech'] = description
         handler_input.response_builder.speak(
             description).set_should_end_session(False)
@@ -338,23 +393,29 @@ class YesMoreInfoIntentHandler(AbstractRequestHandler):
         return is_intent_name('AMAZON.YesIntent')(handler_input)
 
     def handle(self, handler_input):
-        logger.info('In YesMoreInfoIntentHandler,'
-                    ' changing to AskForCocktailIntentHandler')
+        logger.info('In YesMoreInfoIntentHandler')
         session_attr = handler_input.attributes_manager.session_attributes
+        # coming from RandomCocktailIntent
+        # changing the intent to AskForCocktail, because user wants to know 
+        # infos on a specific cocktail
         if session_attr['current_intent'] == 'RandomCocktailIntent':
             return handler_input.response_builder.add_directive(
                 DelegateDirective(
                     updated_intent='AskForCocktail')).response
+        # coming from FilterIntent, listing the cocktails for the response
         elif session_attr['current_intent'] == 'FilterIntent':
             drink_list = session_attr['filtered_drinks']
             if len(drink_list) < 4:
                 speech = ', '.join(drink_list)
             else:
+                # for the case that more than three drinks are found,
+                # three random ones are chosen
                 drink_samples = random.sample(drink_list, 3)
                 speech = get_speech('DRINK_LIST').format(drink_samples[0],
                                                          drink_samples[1],
                                                          drink_samples[2]
                                                          )
+                # safes response to be repeated by request
                 session_attr['last_speech'] = speech
         handler_input.response_builder.speak(
             speech).set_should_end_session(False)
@@ -365,11 +426,9 @@ class NoMoreInfoIntentHandler(AbstractRequestHandler):
     """Handler for no to get no more info intent."""
 
     def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
         return is_intent_name("AMAZON.NoIntent")(handler_input)
 
     def handle(self, handler_input):
-        # type: (HandlerInput) -> Response
         logger.info("In NoMoreInfoIntentHandler")
 
         speech = get_speech('ACCEPT_NO')
@@ -382,13 +441,12 @@ class RepeatIntentHandler(AbstractRequestHandler):
     """Handler for repetition request"""
 
     def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
         return is_intent_name("AMAZON.RepeatIntent")(handler_input)
 
     def handle(self, handler_input):
-        # type: (HandlerInput) -> Response
         logger.info("In RepeatIntentHandler")
         session_attr = handler_input.attributes_manager.session_attributes
+        # checks if there is a response to repeat
         if session_attr['last_speech']:
             speech = session_attr['last_speech']
         else:
@@ -401,8 +459,10 @@ class RepeatIntentHandler(AbstractRequestHandler):
 api = 'https://www.thecocktaildb.com/api/json/v1/1/{}.php'
 
 
-# Benutzen NonAlcoholicCocktailIntent und CocktailWithIngredientIntent,
+# used by NonAlcoholicCocktailIntent und CocktailWithIngredientIntent,
 def filter_drinks(api_request_1, api_request_2, filter_1, filter_2):
+    """Filters the Database by two filters.
+       Makes two api requests, returns the intersecton. """
     try:
         response_1 = http_get(api_request_1)
         response_2 = http_get(api_request_2)
@@ -410,6 +470,7 @@ def filter_drinks(api_request_1, api_request_2, filter_1, filter_2):
         logger.info(response_2)
         drinks_1 = [entry['strDrink'] for entry in response_1['drinks']]
         drinks_2 = [entry['strDrink'] for entry in response_2['drinks']]
+        # intersection contains drinks that match both filters
         drinks_intersection = (set(drinks_1) & set(drinks_2))
         n_drinks = len(drinks_intersection)
         if n_drinks > 4:
@@ -419,6 +480,7 @@ def filter_drinks(api_request_1, api_request_2, filter_1, filter_2):
                 filter_2
                 )
         elif n_drinks == 0:
+            # no drinks found
             speech = get_speech('INGREDIENT_EXCEPTION').format(filter_1,
                                                                filter_2
                                                                )
@@ -434,10 +496,11 @@ def filter_drinks(api_request_1, api_request_2, filter_1, filter_2):
                                                            )
         drinks_intersection = set()
         logger.info("In filter function: message: {}".format(str(e)))
+    # returns the response and the list of drinks
     return speech, list(drinks_intersection)
 
 
-# benutzen AskForCocktailIntent und YesIntent
+# used by AskForCocktailIntent und YesIntent
 def build_response(request_key, response, drink):
     if type(request_key) == list:
         n_ingredients = 0
@@ -477,9 +540,11 @@ def build_response(request_key, response, drink):
     return speech
 
 
-# benutzen AskForCocktailIntent, YesIntent
+# benutzen AskForCocktailIntent, YesIntent, MeasureIntent
+# checks which request was received from the user
 def parse_request(request_type):
     if request_type == 'ingredients':
+        #### what happens here?####
         request_key = ['strIngredient' + str(i) for i in range(1, 16)]
     else:  # both
         request_key = ([i for i in range(1, 16)], 'strInstructions')
@@ -488,10 +553,14 @@ def parse_request(request_type):
 
 # benutzen AskForCocktailIntent, GlassIntent, MeasureIntent
 def get_drink(session_attributes, slot_values):
+    """Checks if a drink is already specified."""
+    # if the slot for drink was filled
     if slot_values['drink']['resolved']:
         return slot_values['drink']['resolved']
+    # checks if there is a drink from a preceding request
     elif 'drink' in session_attributes:
         return session_attributes['drink']
+    # no drink is specified yet
     else:
         return None
 
@@ -499,7 +568,7 @@ def get_drink(session_attributes, slot_values):
 # benutzen AskForCocktailIntent, CocktailwithIngredint,
 # Ingredientdescription, NonalcoholicCocktail
 def get_slot_values(filled_slots):
-    """Return slot values with additional info."""
+    """Extracts the slot values from the request envelope"""
     # type: (Dict[str, Slot]) -> Dict[str, Any]
     slot_values = {}
     logger.info("Filled slots: {}".format(filled_slots))
@@ -540,16 +609,19 @@ def get_slot_values(filled_slots):
     return slot_values
 
 
-# benutzen alle
+# used by all handlers
 def get_speech(prompt):
+    """Reads the response messages that are outsourced to a json file."""
     with open('strings.json') as strings:
+        # read json
         string_data = json.load(strings)
+        # select value list, value is a list of possible responses
         prompt_list = string_data[prompt]
+        # select a random response from the value list
         prompt = random.choice(prompt_list)
     return prompt
 
-
-# benutzen alle
+# used by all handlers
 def build_url(api, api_request_type, api_category=None, api_keyword=None):
     """Return options for HTTP Get call."""
     if api_category and api_keyword:
@@ -560,15 +632,16 @@ def build_url(api, api_request_type, api_category=None, api_keyword=None):
     return url
 
 
-# benutzen alle
+# used by all handlers
 def http_get(url):
+    """Makes an api request."""
     response = requests.get(url)
     logger.info('API request with: {}'.format(url))
     if response.status_code < 200 or response.status_code >= 300:
         response.raise_for_status()
     return response.json()
 
-
+# create instaces of handlers and add them to the skill
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(AskForCocktailRequestHandler())
 sb.add_request_handler(CocktailWithIngredientHandler())
