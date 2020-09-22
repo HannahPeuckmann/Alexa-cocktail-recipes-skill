@@ -51,9 +51,23 @@
                         {
                             "name": "drink",
                             "type": "AMAZON.Drink"
+                        },
+                        {
+                            "name": "drink_synonym",
+                            "type": "drink_synonyms"
                         }
                     ],
                     "samples": [
+                        "search for {drink} {drink_synonym}",
+                        "how to make a {drink} {drink_synonym}",
+                        "what is the recipe for {drink} {drink_synonym}",
+                        "which {request} do I need to make a {drink} {drink_synonym}",
+                        "which {request} do I need for a {drink} {drink_synonym}",
+                        "how do i mix a {drink} {drink_synonym}",
+                        "how do i prepare a {drink} {drink_synonym}",
+                        "how do i make a {drink} {drink_synonym}",
+                        "how do i prepare a {drink}",
+                        "how do i mix a {drink}",
                         "what are the {request}",
                         "{request}",
                         "{request} please",
@@ -84,9 +98,21 @@
                         }
                     ],
                     "samples": [
-                        "suggest me another {drink_synonym}",
-                        "suggest me something else",
-                        "Do you have another suggestion",
+                        "which {drink_synonym} is good for a party",
+                        "which {drink_synonym} is best for a party",
+                        "what kind of {drink_synonym} is best for a party",
+                        "what's a good {drink_synonym} to make",
+                        "what's an easy {drink_synonym} to make",
+                        "which {drink_synonym} should i make tonight",
+                        "what {drink_synonym} should i make tonight",
+                        "what kind of {drink_synonym} should i make tonight",
+                        "Which {drink_synonym} do i serve my friends",
+                        "what {drink_synonym} do i serve my friends",
+                        "What kind of {drink_synonym} do i serve my friends",
+                        "What {drink_synonym} should i make myself",
+                        "What kind of {drink_synonym} should i make",
+                        "What kind of {drink_synonym} should i make myself",
+                        "What {drink_synonym} should i make",
                         "Another {drink_synonym} idea",
                         "Another {drink_synonym} suggestion",
                         "I want a new {drink_synonym}",
@@ -141,6 +167,12 @@
                         }
                     ],
                     "samples": [
+                        "in which {drink_synonym} is {ingredient_one} and {ingredient_two}",
+                        "in what {drink_synonym} is {ingredient_one} and {ingredient_two}",
+                        "in which {drink_synonym} is {ingredient_one}",
+                        "in what {drink_synonym} is {ingredient_one}",
+                        "in what kind of {drink_synonym} is {ingredient_one} and {ingredient_two}",
+                        "in what kind of {drink_synonym} is {ingredient_one}",
                         "give me a {drink_synonym} with {ingredient_one} and {ingredient_two}",
                         "i want {drink_synonym} with {ingredient_one} and {ingredient_two}",
                         "i want to make {drink_synonym} with {ingredient_one} and {ingredient_two}",
@@ -244,6 +276,10 @@
                         }
                     ],
                     "samples": [
+                        "Can you give me the measurement for {ingredient}",
+                        "What's the measurement for {ingredient}",
+                        "What's the measurement of {ingredient}",
+                        "What's the measurement of the {ingredient}",
                         "How much {ingredient} did you say",
                         "Can you repeat the amount of {ingredient}",
                         "Can you tell me the amount of {ingredient} again",
@@ -464,6 +500,13 @@
                         {
                             "name": "drink",
                             "type": "AMAZON.Drink",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
+                        },
+                        {
+                            "name": "drink_synonym",
+                            "type": "drink_synonyms",
                             "confirmationRequired": false,
                             "elicitationRequired": false,
                             "prompts": {}
