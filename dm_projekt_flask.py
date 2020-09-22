@@ -58,7 +58,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
         return is_request_type("LaunchRequest")(handler_input)
 
     def handle(self, handler_input):
-        # messages are read from the json file 
+        # messages are read from the json file
         # that contains the outsourced responses
         speech = get_speech('WELCOME_MSG')
         reprompt = get_speech('WELCOME_REPROMT')
@@ -298,7 +298,8 @@ class NonAlcoholicCocktailIntentHandler(AbstractRequestHandler):
                                   api_keyword='Non_Alcoholic'
                                   )
         session_attr['current_intent'] = 'FilterIntent'
-        # intersection of both lists are non alcoholic filtered by the ingredient
+        # intersection of both lists are non alcoholic cocktails
+        # filtered by the ingredient
         speech, session_attr['filtered_drinks'] = filter_drinks(api_request_i,
                                                                 api_request_a,
                                                                 ingredient,
@@ -396,7 +397,7 @@ class YesMoreInfoIntentHandler(AbstractRequestHandler):
         logger.info('In YesMoreInfoIntentHandler')
         session_attr = handler_input.attributes_manager.session_attributes
         # coming from RandomCocktailIntent
-        # changing the intent to AskForCocktail, because user wants to know 
+        # changing the intent to AskForCocktail, because user wants to know
         # infos on a specific cocktail
         if session_attr['current_intent'] == 'RandomCocktailIntent':
             return handler_input.response_builder.add_directive(
@@ -500,11 +501,15 @@ def filter_drinks(api_request_1, api_request_2, filter_1, filter_2):
     return speech, list(drinks_intersection)
 
 
-# used by AskForCocktailIntent und YesIntent
+# used by AskForCocktailIntent
 def build_response(request_key, response, drink):
+    """Returns speech string with cocktail ingredients or instructions."""
+    # If only ingredients are requested, the keys are in list format
     if type(request_key) == list:
         n_ingredients = 0
         ingredients = []
+        # Valid ingredients are added to the list and counted
+        # Both are returned as string
         for ingredient_key in request_key:
             ingredient = response['drinks'][0][ingredient_key]
             if ingredient is None or ingredient == '':
@@ -516,9 +521,15 @@ def build_response(request_key, response, drink):
         speech = get_speech('GIVE_INGREDIENTS').format(n_ingredients,
                                                        drink,
                                                        ingredients_str)
+        return speech
+    # If only ingredients and instrcutions are requested,
+    # the keys are a tuple containing the ingredient keys in a list and
+    # the instruction key string
     elif type(request_key) == tuple:
         instructions = ' ' + response['drinks'][0][request_key[1]]
         measured_ingredients = []
+        # Valid ingredients with corresponding measures are added to the list
+        # List of measured ingredients and instructions are returned as string
         for i in request_key[0]:
             ingredient_key = 'strIngredient' + str(i)
             measure_key = 'strMeasure' + str(i)
@@ -535,18 +546,22 @@ def build_response(request_key, response, drink):
         speech = get_speech('GIVE_INSTRUCTIONS').format(
             drink,
             measured_ingredients_str) + instructions
+        return speech
     else:
         logger.info(request_key)
-    return speech
 
 
-# benutzen AskForCocktailIntent, YesIntent, MeasureIntent
-# checks which request was received from the user
+# benutzen AskForCocktailIntent, MeasureIntent
 def parse_request(request_type):
+    """Returns keys for extracting information from api response."""
+    # If only ingredients are needed
+    # a list of the sixteen ingredient keys is returned
     if request_type == 'ingredients':
-        #### what happens here?####
         request_key = ['strIngredient' + str(i) for i in range(1, 16)]
-    else:  # both
+    # If ingredients and instructions are needed
+    # a list for construction of ingredient and measure keys
+    # and the instruction key is returned
+    else:
         request_key = ([i for i in range(1, 16)], 'strInstructions')
     return request_key
 
