@@ -26,8 +26,9 @@
 \maketitle
 \thispagestyle{fancy}
 
-Sex on the beach - Im Ramen des Seminars Dialogmodelierung ist als abschließendes Projekt ein
-Alexa skill entstanden, der Alexa zur Expertin werden lässt was Cocktails angeht.
+Sex on the beach - Im Ramen des Seminars 'Dialogmodellierung: Praxis und Implementation' haben wir als abschließendes Projekt einen Alexa Skill implementiert. Als Domäne haben wir für den Skill das Thema Cocktails gewählt. \\Das Ziel war User*innen die Möglichkeit zu bieten innerhalb eines Dialoges mit Alexa, verschiedenste Informationen über Cocktails zu erhalten. Diese Informationen entnehmen wir der TheCocktailDB API. Die API ermöglicht uns unter Anderem Zutatenlisten und Zubereitungsanleitungen zu verschiedenen Cocktails, sowie die Suche nach Cocktails mit unterschiedlichen Kriterien anzubieten. \\ Der entstandene Skill besteht auf einem Interaktionsmodell im JSON-Format und einer Lambda-Funktion, die in Python geschrieben ist. \\
+Im Folgenden werden wir die Projektziele, sowie du Umsetzung dieser genauer erläutern. Evaluation/Auswertung -> Ausblick?
+
 
 \section{Projektziele, Anforderungsdefinition}
 
@@ -412,8 +413,8 @@ Insgesamt werden 29 Requests (abgesehen vom Cancel und Launch Request) gestellt.
 Code besser strukturieren, immer noch zu viel doppelter code\\
 mehr mit slot to elicit bzw intent changing von lambda aus arbeiten\\
 mehrsprachig, - schwierig wegen datenbank fehler in Übersetzung.\\
-Weitere Funktionen implementieren: Fragen nach Alkoholgehalt beantworten, Cocktailfilter nach Glas, Cocktails suchen nach verschiedenen Kriterien (z.B. schweregrad bzw. Anzahl der Zutaten) oder Anlässen, Berechnung der benötigten Zutatenmengen für verschiedene Personenanzahlen.
-
+Weitere Funktionen implementieren: Fragen nach Alkoholgehalt beantworten, Cocktailfilter nach Glas, Cocktails suchen nach verschiedenen Kriterien (z.B. schweregrad bzw. Anzahl der Zutaten) oder Anlässen, Berechnung der benötigten Zutatenmengen für verschiedene Personenanzahlen. \\
+In den ersten Tests wird deutlich, dass ein wichtiger Punkt für ein problemloses Auslösen der gewünschten Intents und somit einen flüssigen Dialog ein umfangreiches Interaktionsmodell ist. Es wäre sinnvoll mehr Tests durchzuführen, in denen die Testpersonen nicht auf bestimmte Formulierungen geprimet sind, um möglichst viele Formulierungen zu finden und in das Interaktionsmodell einbinden zu können. Dafür könnte man mit mehr Slots arbeiten, um nicht alle Formulierungen 'hartcodieren' zu müssen, sondern in weniger Beispiel-Utterances mehr Formulierungskombinationen abdecken zu können.
 \section{Code-Listing}
 \subsection{Lambda-Funktion}
 \lstinputlisting[language=Python]{dm_projekt_flask.py}
