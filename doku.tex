@@ -35,15 +35,15 @@ Im Folgenden werden wir die Projektziele, sowie du Umsetzung dieser genauer erl�
 Ziel Projekts war es, einen Alexa skill zu erstellen.
 Die grundlegende Funktionalität des Skills besteht darin, dass Alexa für einen Cocktail Auskunft geben kann,
 über das Rezept, wobei zwischen Zutaten und Anleitung unterschieden wird, und über das Glas in dem der Cocktail
-üblicherweise serviert wird. Benutzer*Innen können auch Informationen erhalten über in Rezepten enthaltene Zutaten,
+üblicherweise serviert wird. Benutzer*innen können auch Informationen erhalten über in Rezepten enthaltene Zutaten,
 Alexa gibt dann eine kleine Zusammenfassung was die Zutat ist. Die Mengenangaben der Zutaten können ebenfalls noch einmal extra erfragt werden pro Zutat.
-Darüber hinaus kann Alexa Cocktails herraussuchen, die, von Benutzer*Innen
+Darüber hinaus kann Alexa Cocktails herraussuchen, die, von Benutzer*innen
 gegebene, Zutaten enthalten, wobei auch nach nichtalkoholischen Cocktails gefiltert werden kann. 
-Benutzer*Innen können sich auch von Alexa einen willkürlichen Cocktail vorschlagen lassen.
+Benutzer*innen können sich auch von Alexa einen willkürlichen Cocktail vorschlagen lassen.
 Wärend der Entwicklung haben diese Funktionalität immer besser ineinander gegriffen, so das am Ende ein flüssiger Dialog
-zwischen Benutzer*Innen und Alexa entstehen kann.
+zwischen Benutzer*innen und Alexa entstehen kann.
 \subsection{Benutzerpersonae}
-Die zu erwartenden Benutzer*Innen des Skills sind Menschen einer breiten Altersspanne ab 18 Jahre, die Datenbank aus der die Rezepte bezogen werden erhält zwar auch nicht alkoholische Cocktails, die meisten Rezepte enthalten jedoch hochprozentigen Alkohol. Aufgrund dessen ist der Skill für volljährige Benutzer*Innen vorgesehen. Des weiteren  brauchen Benutzer*Innen ausreichende Kenntnisse der englischen Sprache, da der Skill auf englisch ist.
+Die zu erwartenden Benutzer*innen des Skills sind Menschen einer breiten Altersspanne ab 18 Jahre, die Datenbank aus der die Rezepte bezogen werden erhält zwar auch nicht alkoholische Cocktails, die meisten Rezepte enthalten jedoch hochprozentigen Alkohol. Aufgrund dessen ist der Skill für volljährige Benutzer*innen vorgesehen. Des weiteren  brauchen Benutzer*innen ausreichende Kenntnisse der englischen Sprache, da der Skill auf englisch ist.
 
 
 \subsection{Beispieldialoge}
@@ -146,18 +146,18 @@ Die zu erwartenden Benutzer*Innen des Skills sind Menschen einer breiten Alterss
 
 \subsection{AskForCocktailIntent}
 Der Intent gibt für einen Cocktail die Zutaten, die Anleitung oder beides aus.
-Der Intent hat zwei slots, den slot 'request' und den slot 'drink'. 'request' muss obligatorisch gefüllt werden. Im slot 'request' geben Benutzer*Innen an ob sie Zutaten, Anleitung oder beides hören möchten, dementsprechend wird ein API-request gestellt. 'drink' ist ein optionaler slot. Der Skill arbeitet mit Session Attributes, so kann auf den Cocktail aus einem vorherigen request zurückgegriffen werden. Dass ermöglichen, dass beim wechseln zwischen den Intents der cocktail nicht erneut genannt werden muss. Ist der 'drink' slot nicht gefüllt wird also geprüft, ob bereits ein Cocktail als session attribut existiert, aus vorher aufgerufenen Intents, dann wird die Anfrage für diesen Cocktail gemacht. Existert kein Session Attribut und der slot ist nicht von Benutzer*Innen gefüllt wird der slot gefüllt, indem aus der Lambda- Funktion eine Anfrage an Benutzer*Innen gestellt wird, dieser Cocktail wird dann zum Session Attribut. Wird z.B aus dem RandomCocktailIntent in den AskForCocktailIntent gewechselt, dadurch dass Benutzer*Innen die Zutaten für den vorgschlagenen Cockteil wissen möchten, ist dieser session attribute und muss nicht erneut genannt werden.
-Hat der Cocktail keinen Eintrag in der Datenbank werden Benutzer*Innen darüber informiert.
+Der Intent hat zwei slots, den slot 'request' und den slot 'drink'. 'request' muss obligatorisch gefüllt werden. Im slot 'request' geben Benutzer*innen an ob sie Zutaten, Anleitung oder beides hören möchten, dementsprechend wird ein API-request gestellt. 'drink' ist ein optionaler slot. Der Skill arbeitet mit Session Attributes, so kann auf den Cocktail aus einem vorherigen request zurückgegriffen werden. Dass ermöglichen, dass beim wechseln zwischen den Intents der cocktail nicht erneut genannt werden muss. Ist der 'drink' slot nicht gefüllt wird also geprüft, ob bereits ein Cocktail als session attribut existiert, aus vorher aufgerufenen Intents, dann wird die Anfrage für diesen Cocktail gemacht. Existert kein Session Attribut und der slot ist nicht von Benutzer*innen gefüllt wird der slot gefüllt, indem aus der Lambda- Funktion eine Anfrage an Benutzer*innen gestellt wird, dieser Cocktail wird dann zum Session Attribut. Wird z.B aus dem RandomCocktailIntent in den AskForCocktailIntent gewechselt, dadurch dass Benutzer*innen die Zutaten für den vorgschlagenen Cockteil wissen möchten, ist dieser session attribute und muss nicht erneut genannt werden.
+Hat der Cocktail keinen Eintrag in der Datenbank werden Benutzer*innen darüber informiert.
 \subsection{RandomCocktailIntent}
 Die Ausgabe des Intents ist der Name eines zufällig ausgewählten Cocktails der Datenbank. Der Intent hat keine Slots, die gefüllt werden müssen. TheCocktailDB bietet die Möglichkeit eines API-Aufrufs für einen zufälligen Cocktail. Nach dem Triggern des RandomCocktailIntents, wird dieser API-Aufruf gemacht und das Session Attribut, das den aktuellen Cocktail speichert, mit dem Namen des zufälligen Cocktails aktualisiert. Im Speech-Output des Intents wird dieser Cocktail genannt, sowie gefragt, ob Interesse daran besteht. Die Antwort auf diese Frage triggert dann einen der von Amazon bereits eingebauten Intents: YesIntent oder NoIntent. In dem Fall, dass der YesIntent nach dem RandomCocktailIntent getriggert wird, delegiert die Lambda-Funktion zum AskForCocktailIntent. Dieser ist dann für den weiteren Dialog zuständig. 
 \subsection{IngredientDescriptionIntent}
-Der Intent gibt eine kurze Beschreibung einer Zutat aus. Der Intent hat einen slot 'ingredient\_drink', dieser ist obligatorisch. Hat die Zutat keinen Eintrag in der Datenbank werden die Benutzer*Innen darüber informiert. Die Beschreibungstexte in der Datembank sind teilweise sehr lang. Aus dem Grund wird der Text in Sätze aufgesplittet und nur maximal die ersten drei Sätze werden als Antwort ausgegeben.
+Der Intent gibt eine kurze Beschreibung einer Zutat aus. Der Intent hat einen slot 'ingredient\_drink', dieser ist obligatorisch. Hat die Zutat keinen Eintrag in der Datenbank werden die Benutzer*innen darüber informiert. Die Beschreibungstexte in der Datembank sind teilweise sehr lang. Aus dem Grund wird der Text in Sätze aufgesplittet und nur maximal die ersten drei Sätze werden als Antwort ausgegeben.
 \subsection{CocktailWithIngredientIntent}
 Der CocktailWithIngredientIntent dient zum Filtern der Cocktails nach Zutaten. Es werden zwei Slots, 'ingredient\_one' und 'ingredient\_two', benötigt, um den Intent zu erfüllen. Da die API keine freie Funktion zum Filtern mit mehreren Zutaten anbietet, muss für beide Zutaten ein seperater API-Aufruf zum Cocktail-Filtern gemacht werden. Dann wird die Schnittmenge der beiden resultierenden Cocktail-Listen gebildet und als Session Attribut gespeichert. Die Ausgabe des Intents ist die Information, wie viele Cocktails gefunden wurden, mit der Frage, ob eine Auswahl von drei Cocktails aufgelistet werden soll. Die User*innen sollen mit der Anwort dann entweder den YesIntent oder NoIntent triggern. Wird der YesIntent folgend auf den CocktailWithIngredientIntent aufgerufen, werden aus der Cocktail-Liste in den Session Attributes drei Cocktails zufällig ausgewählt und den User*innen aufgezählt. Ist nur ein Cocktail gefunden worden wird dieser zum neuen Session Attribut für den aktuellen Cocktail.
 \subsection{NonAlcoholicCocktailIntent}
 Der NonAlcoholicCocktailIntent filtert Cocktails, die nicht-alkoholisch sind und eine gewünschte Zutat enthalten. Die Funktionsweise ist somit die gleiche, wie die des CocktailWithIngredientIntents, mit dem Unterschied, dass es nur einen Slot gibt, der gefüllt werden muss. Da der API-Aufruf für eine Auflistung von nicht-alkoholischen Cocktails immer gleich ist und hartcodiert werden kann, braucht man nur den Wert des Slots 'ingredient', um den zweiten Filter anzuwenden. Die Liste der resultierenden Cocktails ist dann wie beim Cocktail-With-Ingredient-Intent die Schnittmenge von nicht-alkoholischen Cocktails und den Cocktails mit der genannten Zutat und wird als Session Attribut gespeichert. Ist nur ein Cocktail gefunden worden wird dieser zum neuen Session Attribut für den aktuellen Cocktail. Die Ausgabe des Intents ist ebenso die Anzahl der gefundenen Cocktails, sowie die Frage, ob eine Auswahl von drei aufgezählt werden soll, was die User*innen zum Aufruf des Yes- oder des No-Intents leiten soll. Der YesIntent gibt eine zufällige Auflistung von drei Cocktails der Liste in den Session Attributen aus.
 \subsection{GlassIntent}
-Der Intent gibt eine kurze Information darüber aus, in welchem Glas ein Cocktail üblicherweise serviert wird. Der Intent hat zwei slots, die beide nicht obligtaorisch sind. Der Intent arbeitet ebenfalls mit Session Atributes, ist der slot 'drink' nicht gefüllt wird auf das Session Attribut für den aktuellen Cocktal zurückgrgriffen, falls Benutzer*Innen gerade aus einem Anderen Intent kommen, beispielsweise dem AskForCocktailIntent, ist dieses bereits gefüllt. Ist der slot nicht gefüllt und es existert kein Session Attribute wird der slot gefüllt, indem aus der Lambda-Funktion eine Anfrage an Benutzer*Innen gestellt wird. Dieser Cocktail wird dann zum Session Attribut. Hat die Datenbank die gewünschten Informatinen nicht, werden die Benutzer*Innen darüber informiert.
+Der Intent gibt eine kurze Information darüber aus, in welchem Glas ein Cocktail üblicherweise serviert wird. Der Intent hat zwei slots, die beide nicht obligtaorisch sind. Der Intent arbeitet ebenfalls mit Session Atributes, ist der slot 'drink' nicht gefüllt wird auf das Session Attribut für den aktuellen Cocktal zurückgrgriffen, falls Benutzer*innen gerade aus einem Anderen Intent kommen, beispielsweise dem AskForCocktailIntent, ist dieses bereits gefüllt. Ist der slot nicht gefüllt und es existert kein Session Attribute wird der slot gefüllt, indem aus der Lambda-Funktion eine Anfrage an Benutzer*innen gestellt wird. Dieser Cocktail wird dann zum Session Attribut. Hat die Datenbank die gewünschten Informatinen nicht, werden die Benutzer*innen darüber informiert.
 \subsection{MeasureIntent}
 Der MeasureIntent dient zur Ausgabe der Menge einer einzelnen Zutat, die für einen spezifischen Cocktail benötigt wird.
 Der Intent hat zwei Slots, 'ingredient' und 'drink', von denen der 'ingredient' Slot obligatorisch zur Erfüllung des Intents ist. 
@@ -166,15 +166,18 @@ falls kein Session Attribut 'drink' existiert, das den dialog-aktuellen Cocktail
 Die Lambda-Funktion macht einen API-Aufruf mit dem Cocktailnamen und extrahiert die zugehörige Menge der erfragten Zutat.
 Wenn ein Wert eingetragen ist, wird dieser ausgeben. Ist dies nicht der Fall, wird ausgegeben, dass die Zutat nach belieben verwendet werden kann.
 
+\subsection{YesIntent}
+Der YesIntent erweitert den 
+
 \section{Projektabschluss, Evaluation}
 \subsection{Versuchsanordnung}
-Für den Versuch haben wir uns dazu entschieden ein user manual zu schreiben welches den Testpersonen
+Für den Versuch haben wir uns dazu entschieden ein User Manual zu schreiben welches den Testpersonen
 bereitgestellt wird und haben uns gegen eine konkrete Aufgabenstellung an die Testpersonen geeinigt. Für das Users Manual haben wir uns entschieden um den Testpersonen einen Eindruck zu geben welche Informationen sie durch den Skill generell abrufen können. Dadurch soll vermieden werden, dass funktionalitäten wie das Erfragen einer Mengenangabe oder das Erfragen des Richtigen Glases gar nicht in Betracht gezogen wird. Allerdings bestand dadurch die Gefahr die Testpersonen bezüglich ihrer Art den Skill aufzurufen zu primen.
 In der Evaluation der entstandenen Dialoge stellte sich herraus das, dies der fall war/nicht der fall war.
 \\
  
 \begin{adjustwidth}{1cm}{1cm}
-\textbf{Users Manual 2} 
+\textbf{Users Manual} 
 
 We are happy you decided to use the 'Sex on the Beach' Alexa skill. Sex on the Beach is designed around cocktails. We seek to provide you with all information on cocktails you may need. To invoke the skill simply say "Open sex on the beach".
 Our skill has many functionalities; You can ask for the ingredient list and instructions of specific cocktails. If you can’t decide which glas your cocktail looks best in, you can ask Alexa how to serve it. Furthermore if you want to know more about a specific ingredient, you can ask for information on that. If you prefer certain ingredients, you can ask Alexa for cocktails that contain those. Maybe she knows some recipes, maybe she doesn't. Also if you need inspiration for your next cocktail party, you can ask Alexa for some suggestions. Last but not least, if you want to know how much gin you need for a 'Gin and Tonic', 'Sex on the Beach' can handle that as well.
@@ -409,6 +412,88 @@ Eine Verbesserung der Funktionalität die wir aus diesem Test ziehen ist, wenn A
 \end{dialogue}
 
 Insgesamt werden 29 Requests (abgesehen vom Cancel und Launch Request) gestellt. Bei 16 Requests sind Fehler aufgetreten. Vier von ihnen (4, 6, 9, 14) sind durch Schwierigkeiten der Spracherkennung entstanden und somit nicht von uns behebbar. Für neun der Fehler (1,2,3,7,8,10,11,12,13) ist das Interaktionsmodell verantwortlich, welches wir zur Behebung problemlos erweitern können sollten. In fünf Fällen kann die Anfrage nicht richtig bearbeitet werden, weil die gewünschte Funktion nicht implementiert ist. Dazu gehört das Filtern von Cocktails nach Gläsern (5), die Suche nach 'einfachen' Cocktails (12), die Suche nach Cocktails für bestimmte Anlässe (13), die Berechnung der Zutatenmenge nach Anzahl der Personen (15) und das Wiederholen des letzten Speech-Outputs (16).
+
+\subsection{Testperson Tim}
+\begin{dialogue}
+
+\speak{TIM}open sex on the beach
+
+\speak{ALEXA} Welcome to Sex on the beach
+
+\speak{TIM} are there any cocktails that you can recommend
+
+\speak{ALEXA} You can't do anython wrong with a Snake Bite (UK). Do you agree?
+
+\speak{TIM} no i don't
+
+\speak{ALEXA} You can't do anython wrong with a Snake Bite (UK). Do you agree?
+\attrib{1}
+
+\speak{TIM} what is inside a snake
+
+\speak{ALEXA} Do you want the ingredients, instructions or both?
+
+\speak{TIM} i just want the ingredients
+
+\speak{ALEXA} You need 2 ingredients to make a Snake Bite (UK): Lager, Cider.
+
+\speak{TIM} what is cider
+
+\speak{ALEXA} Cider is an alcoholic beverage made from the fermented juice of apples..The juice of any variety of apple can be used to make cider, but cider apples are best.
+
+\speak{TIM} are there any other cocktails with the cider as an ingredient
+
+\speak{ALEXA} Sorry, my recipe for a Snake Bite (UK) doesn't require any cider as an ingredient.
+\attrib{2}
+
+\speak{TIM} can you repeat the ingredients of a snake
+\attrib{3}
+
+\speak{ALEXA} You need 2 ingredients to make a snake: Lager, Cider.
+
+\speak{TIM} are there any other cocktails which need cider as an degree in greedy
+
+\speak{ALEXA} There are probably a lot of cocktails with need cider as an degree in greedy , tell me a second ingredient to narrow down the search
+
+\speak{TIM} run forty
+\attrib{4}
+
+\speak{ALEXA} I don't know cocktails with need cider as an degree in greedy and run 40, I am sorry
+
+\speak{TIM} rum
+
+\speak{ALEXA} I don't know cocktails with need cider as an degree in greedy and run 40, I am sorry
+
+\speak{TIM} okay so never mind
+
+\speak{TIM} which glass do i need
+
+\speak{ALEXA} For a snake a Pint glass is the right choice
+
+\speak{TIM} what is a pint glass
+
+\speak{ALEXA} I am sorry, I don't have more infos on a pint glass
+
+\speak{TIM} tell me something about white russian
+
+\speak{ALEXA} I am sorry, I don't have more infos on white Russian
+
+\speak{TIM} what are ingredients of white russian cocktails
+
+\speak{ALEXA} You need 3 ingredients to make a white Russian: Vodka, Coffee liqueur, Light cream.
+
+\speak{TIM} can you recommend a sweet cocktail
+
+\speak{ALEXA} Are you interested in the ingredients, the instructions or both?
+
+\speak{TIM} no i'm not interested i'm interested in a sweet cocktail
+
+\speak{ALEXA} Are you interested in the ingredients, the instructions or both?
+
+\speak{TIM} yeah tell me the instruction
+
+\speak{ALEXA} I am sorry, I can't handle this request.
+\end{dialogue}
 \subsection{Ausblick}
 Code besser strukturieren, immer noch zu viel doppelter code\\
 mehr mit slot to elicit bzw intent changing von lambda aus arbeiten\\
