@@ -183,7 +183,11 @@ Wenn ein Wert eingetragen ist, wird dieser ausgeben. Ist dies nicht der Fall, wi
 \subsection{YesMoreInfoIntent}
 Der YesIntent erweitert den 
 \subsection{NoMoreInfoIntent}
+Der NoMoreInfoIntent wird getriggert durch den build-in AMAZON.NoIntent. Der Intent soll aktiv werden, wenn Benutzer*innen keine weiteren Informationen über den aktuell aktiven Cocktail erhalten möchten. Der Intent gibt lediglich eine kurze Reaktion aus "Okay, maybe next time" oder eine kurze Synopsis über die weiteren Funktionalitäten des Skills.
+\lstinputlisting[language=Python, firstline=426, lastline=438]{dm_projekt_flask.py} 
 \subsection{RepeatIntent}
+Der RepeatIntent wird getriggert durch den build-in AMAZON.RepeatIntent. Der Intent ist dafür zuständig die letzte von Alexa gegebene Antwort noch ein mal zu wiederholen. Dazu wird gecheckt ob ein session Attribut mit der zuletzt geäußerten Antwort vorhanden ist und gibt diese wider. Ist kein sesion Attribut vorhanden, das heißt es wurde noch keine Antwort von Alexa innerhalb der aktuellen session gegeben, werden Benutzer*innen darüber informiert.
+\lstinputlisting[language=Python, firstline=441, lastline=457]{dm_projekt_flask.py}
 
 \section{Projektabschluss, Evaluation}
 \subsection{Versuchsanordnung}
@@ -443,7 +447,7 @@ Insgesamt werden 29 Requests (abgesehen vom Cancel und Launch Request) gestellt.
 \speak{TIM} no i don't
 
 \speak{ALEXA} You can't do anython wrong with a Snake Bite (UK). Do you agree?
-\direct{An dieser Stelle wird der falsche Intent getriggert. Anstatt des NoIntent wird der RepeatIntent getriggert}
+\direct{An dieser Stelle wird der falsche Intent getriggert. Anstatt des NoMoreInfoIntent wird der RepeatIntent getriggert}
 \attrib{1}
 
 \speak{TIM} what is inside a snake
@@ -461,7 +465,7 @@ Insgesamt werden 29 Requests (abgesehen vom Cancel und Launch Request) gestellt.
 \speak{TIM} are there any other cocktails with the cider as an ingredient
 
 \speak{ALEXA} Sorry, my recipe for a Snake Bite (UK) doesn't require any cider as an ingredient.
-\direct{An dieser Stelle wird der falsche Intent getriggert, anstelle des CocktailWithIngredientIntent wird der MeasureIntent getriggert. In diesem tritt ebenfalls ein Fehler auf, cider wird nicht als Zutat gefunden obwohl es eine Zutat ist.}
+\direct{An dieser Stelle wird der falsche Intent getriggert, anstelle des CocktailWithIngredientIntent wird der MeasureIntent getriggert. In diesem tritt ebenfalls ein Fehler auf beim füllen der slots auf, "cider as an ingredient" wird als slot-Wert genommen und dementsprechend nicht im Rezept gefunden.}
 \attrib{2}
 
 \speak{TIM} can you repeat the ingredients of a snake
@@ -497,7 +501,7 @@ Insgesamt werden 29 Requests (abgesehen vom Cancel und Launch Request) gestellt.
 \speak{TIM} tell me something about white russian
 
 \speak{ALEXA} I am sorry, I don't have more infos on white Russian\\
-\direct{Hier tritt ein Fehler im AskForCocktailIntent auf, der Cocktail wird nicht in der Datenbank gefunden, obwohl dieser in der Datenbank enthalten ist}
+\direct{Hier wird der falsche Intent getriggert. Die Formulierung triggert den IngredientDescriptionIntent anstelle des AskForCocktailIntent. Beide nehmen AMAZON.Drink als slot-Werte, White Russian kann als Zutat aber nicht gefunden werden.}
 \attrib{5}
 
 \speak{TIM} what are ingredients of white russian cocktails
@@ -521,7 +525,7 @@ Insgesamt werden 29 Requests (abgesehen vom Cancel und Launch Request) gestellt.
 \direct{Hier deckt der Dialog für den slot nicht die Antwort der Testperson ab}
 \attrib{8}
 \end{dialogue}
-Innsgesammt werden 17 Requests gestellt(abgesehen vom Launch Request), bei 8 Requests treten Probleme auf. Dieser Test war der abschließende, der Skill wurde hinsichtlich der zwei vorangegangenen Tests verbessert. Bei diesem Test passiert es seltener, dass speech to text Fehler auftraten, aufgrund derer der skill scheiterte (3). Häufiger war es der Fall, dass der Falsche Intent getriggert wurde und Probleme mit API Anfragen auftraten (1,2,4,5,6,7,8).
+Innsgesammt werden 17 Requests gestellt(abgesehen vom Launch Request), bei 8 Requests treten Probleme auf. Dieser Test war der abschließende, der Skill wurde hinsichtlich der zwei vorangegangenen Tests verbessert. Bei diesem Test passiert es seltener, dass speech to text Fehler auftraten, aufgrund derer der skill scheiterte (2,3). Häufiger war es der Fall, dass der Falsche Intent getriggert wurde (1,4,5,6,7,8). Dieses Problem Resultiert Teilweise daraus, dass die slot-Werte des Benutzers für mehrere Intents passen. Das Problem ließe sich Lösen indem man spezifische, auf die datenbank angepasste slot-tyes erstellt und verwendet, anstelle des AMAZON.Drink.
 
 \subsection{Ausblick}
 In den Tests wird deutlich, dass ein wichtiger Punkt für ein problemloses Auslösen der gewünschten Intents und somit einen flüssigen Dialog, ein umfangreiches Interaktionsmodell ist. Es wäre sinnvoll mehr Tests durchzuführen, in denen die Testpersonen nicht auf bestimmte Formulierungen geprimet sind, um möglichst viele Formulierungen zu finden und in das Interaktionsmodell einbinden zu können. Dafür könnte man mit mehr Slots arbeiten, um nicht alle Formulierungen 'hartcodieren' zu müssen, sondern in weniger Beispiel-Utterances mehr Formulierungskombinationen abdecken zu können. Von den Funktinalitäten her deckt der Skill die meisten, von Benutzer*innen gewünschten ab, die Datenbank nach weiteren Kriterien filtern zu können wäre aber eine sinnvolle Ergänzung, so wurde beispielsweise nach "einfachen" oder "süßen" Cocktails gefragt, oder nach Cocktails für spezielle Anlässe. Diesbezüglich sind wird jedoch limitiert durch die API. Das Implementieren solcher Filter wäre um einiges aufwändiger, als das bisherige filtern nach Zutaten. Einfacher zu Implementieren, da in der Datenbank vermerkt, ist das Ausgeben des Alkoholgehaltes oder das filtern der Datenbank nach Cocktails, die in einem bestimmten Glas serviert werden. Eine Ergänzung zum MeasureIntent wäre das Berechnen der Zutatenmenge für eine bestimmte Personenanzahl, bzw. Cocktailanzahl.
