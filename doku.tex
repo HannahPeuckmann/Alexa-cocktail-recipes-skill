@@ -7,6 +7,7 @@
 \usepackage{titlesec}
 \usepackage{makeidx}
 \usepackage{listings}
+\usepackage[utf8]{inputenc}
 \lstset{basicstyle=\tiny}
 %set page header and footer
 \usepackage{fancyhdr}
@@ -20,15 +21,17 @@
 
 \titlelabel{\thetitle\enspace}
 
+\renewcommand*\contentsname{Inhaltsverzeichnis}
 \begin{document}
 \title{Sex On The Beach - Ein Alexa Skill}
 \author{Sara Derakhshani Hannah Peuckmann}
 \maketitle
 \thispagestyle{fancy}
-
-Sex on the beach - Im Ramen des Seminars 'Dialogmodellierung: Praxis und Implementation' haben wir als abschließendes Projekt einen Alexa Skill implementiert. Als Domäne haben wir für den Skill das Thema Cocktails gewählt. \\Das Ziel war User*innen die Möglichkeit zu bieten innerhalb eines Dialoges mit Alexa, verschiedenste Informationen über Cocktails zu erhalten. Diese Informationen entnehmen wir der TheCocktailDB API. Die API ermöglicht uns unter Anderem Zutatenlisten und Zubereitungsanleitungen zu verschiedenen Cocktails, sowie die Suche nach Cocktails mit unterschiedlichen Kriterien anzubieten. \\ Der entstandene Skill besteht auf einem Interaktionsmodell im JSON-Format und einer Lambda-Funktion, die in Python geschrieben ist. \\
-Im Folgenden werden wir die Projektziele, sowie du Umsetzung dieser genauer erläutern. Evaluation/Auswertung -> Ausblick?
-
+\pagebreak
+\tableofcontents
+\pagebreak
+\section{Zusammenfassung}
+Sex on the beach - Im Ramen des Seminars 'Dialogmodellierung: Praxis und Implementation' haben wir als abschließendes Projekt einen Alexa Skill implementiert. Als Domäne haben wir für den Skill das Thema Cocktails gewählt. \\Das Ziel war User*innen die Möglichkeit zu bieten innerhalb eines Dialoges mit Alexa, verschiedenste Informationen über Cocktails zu erhalten. Diese Informationen entnehmen wir der TheCocktailDB API. Die API ermöglicht uns unter Anderem Zutatenlisten und Zubereitungsanleitungen zu verschiedenen Cocktails, sowie die Suche nach Cocktails mit unterschiedlichen Kriterien anzubieten. \\ Der entstandene Skill besteht auf einem Interaktionsmodell im JSON-Format und einer Lambda-Funktion, die in Python geschrieben ist. 
 
 \section{Projektziele, Anforderungsdefinition}
 
@@ -156,24 +159,31 @@ Als Letztes machten wir einen weiteren Test, um das Endprodukt evaluieren zu kö
 \subsection{AskForCocktailIntent}
 Der Intent gibt für einen Cocktail die Zutaten, die Anleitung oder beides aus.
 Der Intent hat zwei slots, den slot 'request' und den slot 'drink'. 'request' muss obligatorisch gefüllt werden. Im slot 'request' geben Benutzer*Innen an ob sie Zutaten, Anleitung oder beides hören möchten, dementsprechend wird ein API-request gestellt. 'drink' ist ein optionaler slot. Der Skill arbeitet mit Session Attributes, so kann auf den Cocktail aus einem vorherigen request zurückgegriffen werden. Dass ermöglichen, dass beim wechseln zwischen den Intents der cocktail nicht erneut genannt werden muss. Ist der 'drink' slot nicht gefüllt wird also geprüft, ob bereits ein Cocktail als session attribut existiert, aus vorher aufgerufenen Intents, dann wird die Anfrage für diesen Cocktail gemacht. Existert kein Session Attribut und der slot ist nicht von Benutzer*Innen gefüllt wird der slot gefüllt, indem aus der Lambda- Funktion eine Anfrage an Benutzer*Innen gestellt wird, dieser Cocktail wird dann zum Session Attribut. Wird z.B aus dem RandomCocktailIntent in den AskForCocktailIntent gewechselt, dadurch dass Benutzer*Innen die Zutaten für den vorgschlagenen Cockteil wissen möchten, ist dieser session attribute und muss nicht erneut genannt werden.
-Hat der Cocktail keinen Eintrag in der Datenbank werden Benutzer*Innen darüber informiert.
+Hat der Cocktail keinen Eintrag in der Datenbank werden Benutzer*Innen darüber informiert. \\
+\lstinputlisting[language=Python, firstline=70, lastline=116]{dm_projekt_flask.py}
 \subsection{RandomCocktailIntent}
-Die Ausgabe des Intents ist der Name eines zufällig ausgewählten Cocktails der Datenbank. Der Intent hat keine Slots, die gefüllt werden müssen. TheCocktailDB bietet die Möglichkeit eines API-Aufrufs für einen zufälligen Cocktail. Nach dem Triggern des RandomCocktailIntents, wird dieser API-Aufruf gemacht und das Session Attribut, das den aktuellen Cocktail speichert, mit dem Namen des zufälligen Cocktails aktualisiert. Im Speech-Output des Intents wird dieser Cocktail genannt, sowie gefragt, ob Interesse daran besteht. Die Antwort auf diese Frage triggert dann einen der von Amazon bereits eingebauten Intents: YesIntent oder NoIntent. In dem Fall, dass der YesIntent nach dem RandomCocktailIntent getriggert wird, delegiert die Lambda-Funktion zum AskForCocktailIntent. Dieser ist dann für den weiteren Dialog zuständig. 
+Die Ausgabe des Intents ist der Name eines zufällig ausgewählten Cocktails der Datenbank. Der Intent hat keine Slots, die gefüllt werden müssen. TheCocktailDB bietet die Möglichkeit eines API-Aufrufs für einen zufälligen Cocktail. Nach dem Triggern des RandomCocktailIntents, wird dieser API-Aufruf gemacht und das Session Attribut, das den aktuellen Cocktail speichert, mit dem Namen des zufälligen Cocktails aktualisiert. Im Speech-Output des Intents wird dieser Cocktail genannt, sowie gefragt, ob Interesse daran besteht. Die Antwort auf diese Frage triggert dann einen der von Amazon bereits eingebauten Intents: YesIntent oder NoIntent. In dem Fall, dass der YesIntent nach dem RandomCocktailIntent getriggert wird, delegiert die Lambda-Funktion zum AskForCocktailIntent. Dieser ist dann für den weiteren Dialog zuständig.  \\
+\lstinputlisting[language=Python, firstline=318, lastline=346]{dm_projekt_flask.py}
 \subsection{IngredientDescriptionIntent}
-Der Intent gibt eine kurze Beschreibung einer Zutat aus. Der Intent hat einen slot 'ingredient\_drink', dieser ist obligatorisch. Hat die Zutat keinen Eintrag in der Datenbank werden die Benutzer*Innen darüber informiert. Die Beschreibungstexte in der Datembank sind teilweise sehr lang. Aus dem Grund wird der Text in Sätze aufgesplittet und nur maximal die ersten drei Sätze werden als Antwort ausgegeben.
+Der Intent gibt eine kurze Beschreibung einer Zutat aus. Der Intent hat einen slot 'ingredient\_drink', dieser ist obligatorisch. Hat die Zutat keinen Eintrag in der Datenbank werden die Benutzer*Innen darüber informiert. Die Beschreibungstexte in der Datembank sind teilweise sehr lang. Aus dem Grund wird der Text in Sätze aufgesplittet und nur maximal die ersten drei Sätze werden als Antwort ausgegeben. \\
+\lstinputlisting[language=Python, firstline=349, lastline=386]{dm_projekt_flask.py}
 \subsection{CocktailWithIngredientIntent}
-Der CocktailWithIngredientIntent dient zum Filtern der Cocktails nach Zutaten. Es werden zwei Slots, 'ingredient\_one' und 'ingredient\_two', benötigt, um den Intent zu erfüllen. Da die API keine freie Funktion zum Filtern mit mehreren Zutaten anbietet, muss für beide Zutaten ein seperater API-Aufruf zum Cocktail-Filtern gemacht werden. Dann wird die Schnittmenge der beiden resultierenden Cocktail-Listen gebildet und als Session Attribut gespeichert. Die Ausgabe des Intents ist die Information, wie viele Cocktails gefunden wurden, mit der Frage, ob eine Auswahl von drei Cocktails aufgelistet werden soll. Die User*innen sollen mit der Anwort dann entweder den YesIntent oder NoIntent triggern. Wird der YesIntent folgend auf den CocktailWithIngredientIntent aufgerufen, werden aus der Cocktail-Liste in den Session Attributes drei Cocktails zufällig ausgewählt und den User*innen aufgezählt. Ist nur ein Cocktail gefunden worden wird dieser zum neuen Session Attribut für den aktuellen Cocktail.
+Der CocktailWithIngredientIntent dient zum Filtern der Cocktails nach Zutaten. Es werden zwei Slots, 'ingredient\_one' und 'ingredient\_two', benötigt, um den Intent zu erfüllen. Da die API keine freie Funktion zum Filtern mit mehreren Zutaten anbietet, muss für beide Zutaten ein seperater API-Aufruf zum Cocktail-Filtern gemacht werden. Dann wird die Schnittmenge der beiden resultierenden Cocktail-Listen gebildet und als Session Attribut gespeichert. Die Ausgabe des Intents ist die Information, wie viele Cocktails gefunden wurden, mit der Frage, ob eine Auswahl von drei Cocktails aufgelistet werden soll. Die User*innen sollen mit der Anwort dann entweder den YesIntent oder NoIntent triggern. Wird der YesIntent folgend auf den CocktailWithIngredientIntent aufgerufen, werden aus der Cocktail-Liste in den Session Attributes drei Cocktails zufällig ausgewählt und den User*innen aufgezählt. Ist nur ein Cocktail gefunden worden wird dieser zum neuen Session Attribut für den aktuellen Cocktail. \\
+\lstinputlisting[language=Python, firstline=231, lastline=271]{dm_projekt_flask.py}
 \subsection{NonAlcoholicCocktailIntent}
-Der NonAlcoholicCocktailIntent filtert Cocktails, die nicht-alkoholisch sind und eine gewünschte Zutat enthalten. Die Funktionsweise ist somit die gleiche, wie die des CocktailWithIngredientIntents, mit dem Unterschied, dass es nur einen Slot gibt, der gefüllt werden muss. Da der API-Aufruf für eine Auflistung von nicht-alkoholischen Cocktails immer gleich ist und hartcodiert werden kann, braucht man nur den Wert des Slots 'ingredient', um den zweiten Filter anzuwenden. Die Liste der resultierenden Cocktails ist dann wie beim Cocktail-With-Ingredient-Intent die Schnittmenge von nicht-alkoholischen Cocktails und den Cocktails mit der genannten Zutat und wird als Session Attribut gespeichert. Ist nur ein Cocktail gefunden worden wird dieser zum neuen Session Attribut für den aktuellen Cocktail. Die Ausgabe des Intents ist ebenso die Anzahl der gefundenen Cocktails, sowie die Frage, ob eine Auswahl von drei aufgezählt werden soll, was die User*innen zum Aufruf des Yes- oder des No-Intents leiten soll. Der YesIntent gibt eine zufällige Auflistung von drei Cocktails der Liste in den Session Attributen aus.
+Der NonAlcoholicCocktailIntent filtert Cocktails, die nicht-alkoholisch sind und eine gewünschte Zutat enthalten. Die Funktionsweise ist somit die gleiche, wie die des CocktailWithIngredientIntents, mit dem Unterschied, dass es nur einen Slot gibt, der gefüllt werden muss. Da der API-Aufruf für eine Auflistung von nicht-alkoholischen Cocktails immer gleich ist und hartcodiert werden kann, braucht man nur den Wert des Slots 'ingredient', um den zweiten Filter anzuwenden. Die Liste der resultierenden Cocktails ist dann wie beim Cocktail-With-Ingredient-Intent die Schnittmenge von nicht-alkoholischen Cocktails und den Cocktails mit der genannten Zutat und wird als Session Attribut gespeichert. Ist nur ein Cocktail gefunden worden wird dieser zum neuen Session Attribut für den aktuellen Cocktail. Die Ausgabe des Intents ist ebenso die Anzahl der gefundenen Cocktails, sowie die Frage, ob eine Auswahl von drei aufgezählt werden soll, was die User*innen zum Aufruf des Yes- oder des No-Intents leiten soll. Der YesIntent gibt eine zufällige Auflistung von drei Cocktails der Liste in den Session Attributen aus. \\
+\lstinputlisting[language=Python, firstline=274, lastline=315]{dm_projekt_flask.py}
 \subsection{GlassIntent}
-Der Intent gibt eine kurze Information darüber aus, in welchem Glas ein Cocktail üblicherweise serviert wird. Der Intent hat zwei slots, die beide nicht obligtaorisch sind. Der Intent arbeitet ebenfalls mit Session Atributes, ist der slot 'drink' nicht gefüllt wird auf das Session Attribut für den aktuellen Cocktal zurückgrgriffen, falls Benutzer*Innen gerade aus einem Anderen Intent kommen, beispielsweise dem AskForCocktailIntent, ist dieses bereits gefüllt. Ist der slot nicht gefüllt und es existert kein Session Attribute wird der slot gefüllt, indem aus der Lambda-Funktion eine Anfrage an Benutzer*Innen gestellt wird. Dieser Cocktail wird dann zum Session Attribut. Hat die Datenbank die gewünschten Informatinen nicht, werden die Benutzer*Innen darüber informiert.
+Der Intent gibt eine kurze Information darüber aus, in welchem Glas ein Cocktail üblicherweise serviert wird. Der Intent hat zwei slots, die beide nicht obligtaorisch sind. Der Intent arbeitet ebenfalls mit Session Atributes, ist der slot 'drink' nicht gefüllt wird auf das Session Attribut für den aktuellen Cocktal zurückgrgriffen, falls Benutzer*Innen gerade aus einem Anderen Intent kommen, beispielsweise dem AskForCocktailIntent, ist dieses bereits gefüllt. Ist der slot nicht gefüllt und es existert kein Session Attribute wird der slot gefüllt, indem aus der Lambda-Funktion eine Anfrage an Benutzer*Innen gestellt wird. Dieser Cocktail wird dann zum Session Attribut. Hat die Datenbank die gewünschten Informatinen nicht, werden die Benutzer*Innen darüber informiert. \\
+\lstinputlisting[language=Python, firstline=187, lastline=228]{dm_projekt_flask.py}
 \subsection{MeasureIntent}
 Der MeasureIntent dient zur Ausgabe der Menge einer einzelnen Zutat, die für einen spezifischen Cocktail benötigt wird.
 Der Intent hat zwei Slots, 'ingredient' und 'drink', von denen der 'ingredient' Slot obligatorisch zur Erfüllung des Intents ist. 
 Dieser Slot repräsentiert die Zutat, für die die Menge erfragt wird. Der 'drink' Slot repräsentiert den Cocktail und muss nur gefüllt werden,
 falls kein Session Attribut 'drink' existiert, das den dialog-aktuellen Cocktail gespeichert hat.
 Die Lambda-Funktion macht einen API-Aufruf mit dem Cocktailnamen und extrahiert die zugehörige Menge der erfragten Zutat.
-Wenn ein Wert eingetragen ist, wird dieser ausgeben. Ist dies nicht der Fall, wird ausgegeben, dass die Zutat nach belieben verwendet werden kann.
+Wenn ein Wert eingetragen ist, wird dieser ausgeben. Ist dies nicht der Fall, wird ausgegeben, dass die Zutat nach belieben verwendet werden kann. \\
+\lstinputlisting[language=Python, firstline=119, lastline=184]{dm_projekt_flask.py}
 
 \section{Projektabschluss, Evaluation}
 \subsection{Versuchsanordnung}
@@ -424,9 +434,4 @@ mehr mit slot to elicit bzw intent changing von lambda aus arbeiten\\
 mehrsprachig, - schwierig wegen datenbank fehler in Übersetzung.\\
 Weitere Funktionen implementieren: Fragen nach Alkoholgehalt beantworten, Cocktailfilter nach Glas, Cocktails suchen nach verschiedenen Kriterien (z.B. schweregrad bzw. Anzahl der Zutaten) oder Anlässen, Berechnung der benötigten Zutatenmengen für verschiedene Personenanzahlen. \\
 In den ersten Tests wird deutlich, dass ein wichtiger Punkt für ein problemloses Auslösen der gewünschten Intents und somit einen flüssigen Dialog ein umfangreiches Interaktionsmodell ist. Es wäre sinnvoll mehr Tests durchzuführen, in denen die Testpersonen nicht auf bestimmte Formulierungen geprimet sind, um möglichst viele Formulierungen zu finden und in das Interaktionsmodell einbinden zu können. Dafür könnte man mit mehr Slots arbeiten, um nicht alle Formulierungen 'hartcodieren' zu müssen, sondern in weniger Beispiel-Utterances mehr Formulierungskombinationen abdecken zu können.
-\section{Code-Listing}
-\subsection{Lambda-Funktion}
-\lstinputlisting[language=Python]{dm_projekt_flask.py}
-\subsection{Lambda-Funktion: Basic-Handlers}
-\lstinputlisting[language=Python]{basic_handlers.py}
 \end{document}
