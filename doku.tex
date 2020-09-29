@@ -9,7 +9,6 @@
 \usepackage{listings}
 \usepackage[utf8]{inputenc}
 \lstset{basicstyle=\tiny}
-%set page header and footer
 \usepackage{fancyhdr}
 \usepackage{dialogue}
 \usepackage{attrib}
@@ -24,7 +23,7 @@
 \renewcommand*\contentsname{Inhaltsverzeichnis}
 \begin{document}
 \title{Sex On The Beach - Ein Alexa Skill}
-\author{Sara Derakhshani Hannah Peuckmann}
+\author{Sara Derakhshani, Hannah Peuckmann}
 \maketitle
 \thispagestyle{fancy}
 \pagebreak
@@ -151,40 +150,51 @@ Da wir an diesem Punkt in den Session Attributen immer den aktuellen Cocktail ge
 Danach schrieben wir das UserManual und gingen in den Testprozess. Wir ließen jeweils eine Person testen, protokollierten dies und besprachen, was wir in der verbleibenden Zeit noch erarbeiten und verbessern konnten. Wir beschlossen das Interaktionsmodell um User Utterances zu erweitern, die Lambda-Funktion auf Code-Duplikation zu checken, die Kommentare zu erweitern und mit der Dokumentation zu beginnen. \\
 Als Letztes machten wir einen weiteren Test, um das Endprodukt evaluieren zu können und stellten die Dokumentation fertig.
 
-\section{Entwurf des Systems, Dokumentation}
-\subsection{Entwicklungsumgebung, Dokumentation der Intents}
+\section{Dokumentation der Intents}
 
 \subsection{AskForCocktailIntent}
 Der Intent gibt für einen Cocktail die Zutaten, die Anleitung oder beides aus.
-Der Intent hat zwei slots, den slot 'request' und den slot 'drink'. 'request' muss obligatorisch gefüllt werden. Im slot 'request' geben Benutzer*innen an ob sie Zutaten, Anleitung oder beides hören möchten, dementsprechend wird ein API-request gestellt. 'drink' ist ein optionaler slot. Der Skill arbeitet mit Session Attributes, so kann auf den Cocktail aus einem vorherigen request zurückgegriffen werden. Dass ermöglichen, dass beim wechseln zwischen den Intents der cocktail nicht erneut genannt werden muss. Ist der 'drink' slot nicht gefüllt wird also geprüft, ob bereits ein Cocktail als session attribut existiert, aus vorher aufgerufenen Intents, dann wird die Anfrage für diesen Cocktail gemacht. Existert kein Session Attribut und der slot ist nicht von Benutzer*innen gefüllt wird der slot gefüllt, indem aus der Lambda- Funktion eine Anfrage an Benutzer*innen gestellt wird, dieser Cocktail wird dann zum Session Attribut. Wird z.B aus dem RandomCocktailIntent in den AskForCocktailIntent gewechselt, dadurch dass Benutzer*innen die Zutaten für den vorgschlagenen Cockteil wissen möchten, ist dieser session attribute und muss nicht erneut genannt werden.
+Der Intent hat zwei slots, den slot 'request' und den slot 'drink'. 'request' muss obligatorisch gefüllt werden. Im slot 'request' geben Benutzer*innen an ob sie Zutaten, Anleitung oder beides hören möchten, dementsprechend wird ein API-request gestellt. 'drink' ist ein optionaler slot. Der Skill arbeitet mit Session Attributes, so kann auf den Cocktail aus einem vorherigen request zurückgegriffen werden. Dass ermöglichen, dass beim wechseln zwischen den Intents der cocktail nicht erneut genannt werden muss. Ist der 'drink' slot nicht gefüllt wird also geprüft, ob bereits ein Cocktail 'aktiv' ist, als session attribut existiert, aus vorher aufgerufenen Intents, dann wird die Anfrage für diesen Cocktail gemacht. Existert kein Session Attribut und der slot ist nicht von Benutzer*innen gefüllt wird der slot gefüllt, indem aus der Lambda- Funktion eine Anfrage an Benutzer*innen gestellt wird, dieser Cocktail wird dann zum Session Attribut. Wird z.B aus dem RandomCocktailIntent in den AskForCocktailIntent gewechselt, dadurch dass Benutzer*innen die Zutaten für den vorgschlagenen Cockteil wissen möchten, ist dieser session attribute und muss nicht erneut genannt werden.
 Hat der Cocktail keinen Eintrag in der Datenbank werden Benutzer*innen darüber informiert.
+\lstinputlisting[language=Python, firstline=70, lastline=116]{dm_projekt_flask.py}
+
 \subsection{RandomCocktailIntent}
-Die Ausgabe des Intents ist der Name eines zufällig ausgewählten Cocktails der Datenbank. Der Intent hat keine Slots, die gefüllt werden müssen. TheCocktailDB bietet die Möglichkeit eines API-Aufrufs für einen zufälligen Cocktail. Nach dem Triggern des RandomCocktailIntents, wird dieser API-Aufruf gemacht und das Session Attribut, das den aktuellen Cocktail speichert, mit dem Namen des zufälligen Cocktails aktualisiert. Im Speech-Output des Intents wird dieser Cocktail genannt, sowie gefragt, ob Interesse daran besteht. Die Antwort auf diese Frage triggert dann einen der von Amazon bereits eingebauten Intents: YesIntent oder NoIntent. In dem Fall, dass der YesIntent nach dem RandomCocktailIntent getriggert wird, delegiert die Lambda-Funktion zum AskForCocktailIntent. Dieser ist dann für den weiteren Dialog zuständig.  \\
+Die Ausgabe des Intents ist der Name eines zufällig ausgewählten Cocktails der Datenbank. Der Intent hat keine Slots, die gefüllt werden müssen. TheCocktailDB bietet die Möglichkeit eines API-Aufrufs für einen zufälligen Cocktail. Nach dem Triggern des RandomCocktailIntents, wird dieser API-Aufruf gemacht und das Session Attribut, das den aktuel aktiven Cocktail speichert, mit dem Namen des zufälligen Cocktails aktualisiert. Im Speech-Output des Intents wird dieser Cocktail genannt, sowie gefragt, ob Interesse daran besteht. Die Antwort auf diese Frage triggert dann einen der von Amazon bereits eingebauten Intents: YesIntent oder NoIntent. In dem Fall, dass der YesIntent nach dem RandomCocktailIntent getriggert wird, delegiert die Lambda-Funktion zum AskForCocktailIntent. Dieser ist dann für den weiteren Dialog zuständig.  \\
 \lstinputlisting[language=Python, firstline=318, lastline=346]{dm_projekt_flask.py}
+
 \subsection{IngredientDescriptionIntent}
 Der Intent gibt eine kurze Beschreibung einer Zutat aus. Der Intent hat einen slot 'ingredient\_drink', dieser ist obligatorisch. Hat die Zutat keinen Eintrag in der Datenbank werden die Benutzer*innen darüber informiert. Die Beschreibungstexte in der Datembank sind teilweise sehr lang. Aus dem Grund wird der Text in Sätze aufgesplittet und nur maximal die ersten drei Sätze werden als Antwort ausgegeben.
+\lstinputlisting[language=Python, firstline=349, lastline=386]{dm_projekt_flask.py}
+
 \subsection{CocktailWithIngredientIntent}
 Der CocktailWithIngredientIntent dient zum Filtern der Cocktails nach Zutaten. Es werden zwei Slots, 'ingredient\_one' und 'ingredient\_two', benötigt, um den Intent zu erfüllen. Da die API keine freie Funktion zum Filtern mit mehreren Zutaten anbietet, muss für beide Zutaten ein seperater API-Aufruf zum Cocktail-Filtern gemacht werden. Dann wird die Schnittmenge der beiden resultierenden Cocktail-Listen gebildet und als Session Attribut gespeichert. Die Ausgabe des Intents ist die Information, wie viele Cocktails gefunden wurden, mit der Frage, ob eine Auswahl von drei Cocktails aufgelistet werden soll. Die User*innen sollen mit der Anwort dann entweder den YesIntent oder NoIntent triggern. Wird der YesIntent folgend auf den CocktailWithIngredientIntent aufgerufen, werden aus der Cocktail-Liste in den Session Attributes drei Cocktails zufällig ausgewählt und den User*innen aufgezählt. Ist nur ein Cocktail gefunden worden wird dieser zum neuen Session Attribut für den aktuellen Cocktail. \\
 \lstinputlisting[language=Python, firstline=231, lastline=271]{dm_projekt_flask.py}
+
 \subsection{NonAlcoholicCocktailIntent}
 Der NonAlcoholicCocktailIntent filtert Cocktails, die nicht-alkoholisch sind und eine gewünschte Zutat enthalten. Die Funktionsweise ist somit die gleiche, wie die des CocktailWithIngredientIntents, mit dem Unterschied, dass es nur einen Slot gibt, der gefüllt werden muss. Da der API-Aufruf für eine Auflistung von nicht-alkoholischen Cocktails immer gleich ist und hartcodiert werden kann, braucht man nur den Wert des Slots 'ingredient', um den zweiten Filter anzuwenden. Die Liste der resultierenden Cocktails ist dann wie beim Cocktail-With-Ingredient-Intent die Schnittmenge von nicht-alkoholischen Cocktails und den Cocktails mit der genannten Zutat und wird als Session Attribut gespeichert. Ist nur ein Cocktail gefunden worden wird dieser zum neuen Session Attribut für den aktuellen Cocktail. Die Ausgabe des Intents ist ebenso die Anzahl der gefundenen Cocktails, sowie die Frage, ob eine Auswahl von drei aufgezählt werden soll, was die User*innen zum Aufruf des Yes- oder des No-Intents leiten soll. Der YesIntent gibt eine zufällige Auflistung von drei Cocktails der Liste in den Session Attributen aus. \\
 \lstinputlisting[language=Python, firstline=274, lastline=315]{dm_projekt_flask.py}
+
 \subsection{GlassIntent}
-Der Intent gibt eine kurze Information darüber aus, in welchem Glas ein Cocktail üblicherweise serviert wird. Der Intent hat zwei slots, die beide nicht obligtaorisch sind. Der Intent arbeitet ebenfalls mit Session Atributes, ist der slot 'drink' nicht gefüllt wird auf das Session Attribut für den aktuellen Cocktal zurückgrgriffen, falls Benutzer*innen gerade aus einem Anderen Intent kommen, beispielsweise dem AskForCocktailIntent, ist dieses bereits gefüllt. Ist der slot nicht gefüllt und es existert kein Session Attribute wird der slot gefüllt, indem aus der Lambda-Funktion eine Anfrage an Benutzer*innen gestellt wird. Dieser Cocktail wird dann zum Session Attribut. Hat die Datenbank die gewünschten Informatinen nicht, werden die Benutzer*innen darüber informiert.
+Der Intent gibt eine kurze Information darüber aus, in welchem Glas ein Cocktail üblicherweise serviert wird. Der Intent hat zwei slots, die beide nicht obligtaorisch sind. Der Intent arbeitet ebenfalls mit Session Atributes, ist der slot 'drink' nicht gefüllt wird auf das Session Attribut für den aktiven Cocktal zurückgrgriffen, falls Benutzer*innen gerade aus einem Anderen Intent kommen, beispielsweise dem AskForCocktailIntent, ist dieses bereits gefüllt. Ist der slot nicht gefüllt und es existert kein Session Attribute wird der slot gefüllt, indem aus der Lambda-Funktion eine Anfrage an Benutzer*innen gestellt wird. Dieser Cocktail ist dann der aktive Cocktail. Hat die Datenbank die gewünschten Informatinen nicht, werden die Benutzer*innen darüber informiert.
+\lstinputlisting[language=Python, firstline=187, lastline=228]{dm_projekt_flask.py}
+
 \subsection{MeasureIntent}
 Der MeasureIntent dient zur Ausgabe der Menge einer einzelnen Zutat, die für einen spezifischen Cocktail benötigt wird.
 Der Intent hat zwei Slots, 'ingredient' und 'drink', von denen der 'ingredient' Slot obligatorisch zur Erfüllung des Intents ist. 
 Dieser Slot repräsentiert die Zutat, für die die Menge erfragt wird. Der 'drink' Slot repräsentiert den Cocktail und muss nur gefüllt werden,
-falls kein Session Attribut 'drink' existiert, das den dialog-aktuellen Cocktail gespeichert hat.
+falls kein Session Attribut 'drink' existiert, das den aktiven Cocktail gespeichert hat.
 Die Lambda-Funktion macht einen API-Aufruf mit dem Cocktailnamen und extrahiert die zugehörige Menge der erfragten Zutat.
 Wenn ein Wert eingetragen ist, wird dieser ausgeben. Ist dies nicht der Fall, wird ausgegeben, dass die Zutat nach belieben verwendet werden kann. \\
 \lstinputlisting[language=Python, firstline=119, lastline=184]{dm_projekt_flask.py}
 
 \subsection{YesMoreInfoIntent}
-Der YesIntent erweitert den 
+Der YesMoreInfoIntent wird getriggert durch den build-in AMAZON.YesIntent. Der Intent wird einerseits aktiv, wenn Benutzerinnen im RandomCocktailIntent weitere Informationen über den vorgeschlagenen Cocktail haben möchten. Dann Delegiert der YesMoreInfoIntent an den AskForCocktailIntent weiter, mit dem Cocktail aus dem RandomCocktailIntent als aktiven Cocktail. Darüber hinaus übernimmt der Intent, wenn in einem der beiden filterneden Intents (CocktailWithIngredientIntent und NonAlcoholicCocktailIntent) Benutzer*innen bestätigen, dass sie die gefundenen Cocktails augegeben haben möchten. Dann sucht der Intent drei zufällige Cocktails heraus, vorrausgesetzt es wurden mehr als drei gefunden, andernfalls werden lediglich die gefundenen ausgegeben. Ist nur ein Cocktail gefunden worden, so wird dieser zum aktiven Cocktail. 
+\lstinputlisting[language=Python, firstline=389, lastline=423]{dm_projekt_flask.py}
+
 \subsection{NoMoreInfoIntent}
 Der NoMoreInfoIntent wird getriggert durch den build-in AMAZON.NoIntent. Der Intent soll aktiv werden, wenn Benutzer*innen keine weiteren Informationen über den aktuell aktiven Cocktail erhalten möchten. Der Intent gibt lediglich eine kurze Reaktion aus "Okay, maybe next time" oder eine kurze Synopsis über die weiteren Funktionalitäten des Skills.
-\lstinputlisting[language=Python, firstline=426, lastline=438]{dm_projekt_flask.py} 
+\lstinputlisting[language=Python, firstline=426, lastline=438]{dm_projekt_flask.py}
+ 
 \subsection{RepeatIntent}
 Der RepeatIntent wird getriggert durch den build-in AMAZON.RepeatIntent. Der Intent ist dafür zuständig die letzte von Alexa gegebene Antwort noch ein mal zu wiederholen. Dazu wird gecheckt ob ein session Attribut mit der zuletzt geäußerten Antwort vorhanden ist und gibt diese wider. Ist kein sesion Attribut vorhanden, das heißt es wurde noch keine Antwort von Alexa innerhalb der aktuellen session gegeben, werden Benutzer*innen darüber informiert.
 \lstinputlisting[language=Python, firstline=441, lastline=457]{dm_projekt_flask.py}
@@ -223,7 +233,7 @@ Example requests you can ask our skill to get familiar:
 \end{adjustwidth}
 
 Testpersonen:
-    Karla, Carlotta
+    Karla, Carlotta, Tim
 
 \subsection{Auswertung}
 \textbf{Testperson Karla}
@@ -243,19 +253,20 @@ Testpersonen:
 \speak{KARLA} can you suggest something else
 
 \speak{ALEXA} I am sorry, I can't handle this request.\\
-\attrib{1}
 \direct{Diese funktionalität ist nicht eingebaut, darum scheitert der request}
+\attrib{1}
 
 \speak{KARLA} do you have another suggestion
 
 \speak{ALEXA} I am sorry, I can't handle this request.
+\direct{Funktionalität ist nicht eingebaut}
 \attrib{2}
 
 \speak{KARLA} what glass is rum toddy certain
 
 \speak{ALEXA} I don't know more about rum toddy certain i'm sorry, maybe google knows more than me.\\
-\attrib{3}
 \direct{scheitert warscheinlich aufgrund des speech to text Fehlers}
+\attrib{3}
 
 \speak{KARLA} what do i deed for a white russian
 
@@ -278,8 +289,8 @@ Testpersonen:
 \speak{ALEXA} Rum Cooler
 
 \speak{KARLA} how do i make rumpler
-\attrib{4}
 \direct{speech to text Fehler, wird an dieser Stelle leider weiter propagiert, Alexa erkennt keinen neuen cocktail, der slot wird nicht gefüllt und dementsprechend wird angenommen, dass noch über das aktuelle session atribute gesprochen wird, dieses ist white russian. Rum Cooler ist an dieser stelle nicht zum session attribute gemacht wirden, da häufig eine Liste an passenden cocktails ausgegeben wird.}
+\attrib{4}
 
 \speak{ALEXA} what do you want me to look up, instructions , ingredients or both?
 
@@ -288,42 +299,42 @@ Testpersonen:
 \speak{ALEXA} The instructions for white Russian are the following: You need 2 oz Vodka, 1 oz Coffee liqueur, some Light cream. Pour vodka and coffee liqueur over ice cubes in an old-fashioned glass. Fill with light cream and serve.
 
 \speak{KARLA} how do i make run cooler\\
-\attrib{5}
 \direct{Speech to text fehler}
+\attrib{5}
 
-I am sorry, I can't handle this request.
+\speak{ALEXA} I am sorry, I can't handle this request.
 
 \speak{KARLA} what is rum
 
 \speak{ALEXA} Rum is a distilled alcoholic beverage made from sugarcane byproducts, such as molasses, or directly from sugarcane juice, by a process of fermentation and distillation..The distillate, a clear liquid, is then usually aged in oak barrels.
 
 \speak{KARLA} do you know pina colada\\
-\attrib{6}
 \direct{wird vom Interaktionsmodell nicht abgedekt diese Anfrage}
+\attrib{6}
 
 \speak{ALEXA} I am sorry, I can't handle this request.
 
 \speak{KARLA} what glass do i need for pina colada\\
-\attrib{7}
 \direct{pina colada wird nicht als Wert für den drink slot erkannt, darum wird wieder auf das session attribute zurückgegriffen}
+\attrib{7}
 
 \speak{ALEXA} For a white Russian a Old-fashioned glass is the right choice
 
 \speak{KARLA} what are the ingredients for king pina colada\\
-\attrib{8}
 \direct{speech to text Fehler}
+\attrib{8}
 
 \speak{ALEXA} I don't know anything about king Pina colada, I am sorry.\\
-\attrib{9}
 \direct{King Pina colada ist nicht in der Datenbank enthalten}
+\attrib{9}
 
 \speak{KARLA} what are the ingredients for pina colada
 
 \speak{ALEXA} 3 ingredients are needed for a Pina colada: Light rum, Coconut milk, Pineapple.
 
 \speak{KARLA} how much coconut milk do i need for a nikolai\\
-\attrib{10}
 \direct{Speech to text Fehler}
+\attrib{10}
 
 \speak{ALEXA} I am sorry, something went wrong.
 \speak{KARLA} Bye
@@ -464,7 +475,7 @@ Insgesamt werden 29 Requests (abgesehen vom Cancel und Launch Request) gestellt.
 
 \speak{TIM} are there any other cocktails with the cider as an ingredient
 
-\speak{ALEXA} Sorry, my recipe for a Snake Bite (UK) doesn't require any cider as an ingredient.
+\speak{ALEXA} Sorry, my recipe for a Snake Bite (UK) doesn't require any cider as an ingredient.\\
 \direct{An dieser Stelle wird der falsche Intent getriggert, anstelle des CocktailWithIngredientIntent wird der MeasureIntent getriggert. In diesem tritt ebenfalls ein Fehler auf beim füllen der slots auf, "cider as an ingredient" wird als slot-Wert genommen und dementsprechend nicht im Rezept gefunden.}
 \attrib{2}
 
@@ -476,7 +487,7 @@ Insgesamt werden 29 Requests (abgesehen vom Cancel und Launch Request) gestellt.
 
 \speak{ALEXA} There are probably a lot of cocktails with need cider as an degree in greedy , tell me a second ingredient to narrow down the search
 
-\speak{TIM} run forty
+\speak{TIM} run forty\\
 \direct{Speech to text Fehler}
 \attrib{3}
 
@@ -484,7 +495,7 @@ Insgesamt werden 29 Requests (abgesehen vom Cancel und Launch Request) gestellt.
 
 \speak{TIM} rum
 
-\speak{ALEXA} I don't know cocktails with need cider as an degree in greedy and run 40, I am sorry
+\speak{ALEXA} I don't know cocktails with need cider as an degree in greedy and run 40, I am sorry\\
 \direct{An dieser Stelle wird fälschlicherweise der RepeatIntent getriggert}
 \attrib{4}
 
@@ -521,7 +532,7 @@ Insgesamt werden 29 Requests (abgesehen vom Cancel und Launch Request) gestellt.
 
 \speak{TIM} yeah tell me the instruction
 
-\speak{ALEXA} I am sorry, I can't handle this request.
+\speak{ALEXA} I am sorry, I can't handle this request.\\
 \direct{Hier deckt der Dialog für den slot nicht die Antwort der Testperson ab}
 \attrib{8}
 \end{dialogue}
