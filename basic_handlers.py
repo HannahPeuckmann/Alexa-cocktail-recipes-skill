@@ -10,6 +10,7 @@ import json
 
 import random
 
+from dm_projekt_flask import get_speech
 from ask_sdk_model.services import ServiceException
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.utils import is_request_type, is_intent_name
@@ -117,14 +118,3 @@ class ResponseLogger(AbstractResponseInterceptor):
         logger.info("Response: {}".format(response))
 
 
-# funktion to read from a json
-def get_speech(prompt):
-    """reads the response messages outsourced to a json file."""
-    with open('strings.json') as strings:
-        # read json
-        string_data = json.load(strings)
-        # select value list, value is a list of possible responses
-        prompt_list = string_data[prompt]
-        # select a random response from the value list
-        prompt = random.choice(prompt_list)
-    return prompt
