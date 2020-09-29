@@ -67,7 +67,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
         return handler_input.response_builder.response
 
 
-class AskForCocktailRequestHandler(AbstractRequestHandler):
+class AskForCocktailIntentHandler(AbstractRequestHandler):
     """ Handler for AskForCocktail intent, builds an Alexa response with
         ingredients, instruction or both for the asked cocktail"""
 
@@ -228,7 +228,7 @@ class GlassIntentHandler(AbstractRequestHandler):
         return handler_input.response_builder.response
 
 
-class CocktailWithIngredientHandler(AbstractRequestHandler):
+class CocktailWithIngredientIntentHandler(AbstractRequestHandler):
     """Handler for cocktail with ingredient intent."""
 
     def can_handle(self, handler_input):
@@ -346,7 +346,7 @@ class RandomCocktailIntentHandler(AbstractRequestHandler):
         return handler_input.response_builder.response
 
 
-class IngredientdescriptionHandler(AbstractRequestHandler):
+class IngredientDescriptionIntentHandler(AbstractRequestHandler):
     """ Handler for information about a specific ingredient"""
 
     def can_handle(self, handler_input):
