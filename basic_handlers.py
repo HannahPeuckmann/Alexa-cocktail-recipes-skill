@@ -7,7 +7,6 @@
 import json
 import random
 import logging
-# from dm_projekt_flask import get_speech
 from ask_sdk_core.utils import is_request_type, is_intent_name
 from ask_sdk_core.dispatch_components import (AbstractRequestHandler,
                                               AbstractExceptionHandler,
