@@ -11,7 +11,6 @@ import six
 from nltk.tokenize import sent_tokenize
 import json
 import random
-
 from typing import Dict, Any
 from flask import Flask
 from flask_ask_sdk.skill_adapter import SkillAdapter
@@ -19,7 +18,7 @@ from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.utils import is_request_type, is_intent_name
 from ask_sdk_core.handler_input import HandlerInput
-from ask_sdk_model import (Response, Slot)
+from ask_sdk_model import Slot
 from ask_sdk_model.dialog import (ElicitSlotDirective, DelegateDirective)
 from ask_sdk_model.slu.entityresolution import StatusCode
 from basic_handlers import (HelpIntentHandler,
@@ -30,13 +29,6 @@ from basic_handlers import (HelpIntentHandler,
                             RequestLogger,
                             ResponseLogger
                             )
-# from ask_sdk_model.services import ServiceException
-# from ask_sdk_core.dispatch_components import (
-#     AbstractRequestHandler, AbstractExceptionHandler,
-#     AbstractResponseInterceptor, AbstractRequestInterceptor)
-# from ask_sdk_model import (
-#     Response, IntentRequest, DialogState, SlotConfirmationStatus, Slot)
-
 
 # create logger, logger settings
 logger = logging.getLogger(__name__)
@@ -636,6 +628,7 @@ def get_speech(prompt):
         prompt = random.choice(prompt_list)
     return prompt
 
+
 # used by all handlers
 def build_url(api, api_request_type, api_category=None, api_keyword=None):
     """Return options for HTTP Get call."""
@@ -656,15 +649,16 @@ def http_get(url):
         response.raise_for_status()
     return response.json()
 
+
 # create instaces of handlers and add them to the skill
 sb.add_request_handler(LaunchRequestHandler())
-sb.add_request_handler(AskForCocktailRequestHandler())
-sb.add_request_handler(CocktailWithIngredientHandler())
+sb.add_request_handler(AskForCocktailIntentHandler())
+sb.add_request_handler(CocktailWithIngredientIntentHandler())
 sb.add_request_handler(NonAlcoholicCocktailIntentHandler())
 sb.add_request_handler(GlassIntentHandler())
 sb.add_request_handler(MeasureIntentHandler())
 sb.add_request_handler(RandomCocktailIntentHandler())
-sb.add_request_handler(IngredientdescriptionHandler())
+sb.add_request_handler(IngredientDescriptionIntentHandler())
 sb.add_request_handler(YesMoreInfoIntentHandler())
 sb.add_request_handler(NoMoreInfoIntentHandler())
 sb.add_request_handler(RepeatIntentHandler())
