@@ -4,21 +4,15 @@
 # SoSe 2020
 # Classes of basic handlers for exceptions, logging, help and cancel
 
-import logging
-
 import json
-
 import random
-
-from dm_projekt_flask import get_speech
-from ask_sdk_model.services import ServiceException
-from ask_sdk_core.dispatch_components import AbstractRequestHandler
+import logging
+# from dm_projekt_flask import get_speech
 from ask_sdk_core.utils import is_request_type, is_intent_name
-from ask_sdk_core.handler_input import HandlerInput
-from ask_sdk_model import Response
-from ask_sdk_core.dispatch_components import (
-    AbstractRequestHandler, AbstractExceptionHandler,
-    AbstractResponseInterceptor, AbstractRequestInterceptor)
+from ask_sdk_core.dispatch_components import (AbstractRequestHandler,
+                                              AbstractExceptionHandler,
+                                              AbstractResponseInterceptor,
+                                              AbstractRequestInterceptor)
 
 # create logger, logger settings
 logger = logging.getLogger(__name__)
@@ -40,7 +34,6 @@ class HelpIntentHandler(AbstractRequestHandler):
         # stores the help message, read from a json that
         # contains the outsourced response messages
         speech = get_speech("HELP_MSG")
-
         handler_input.response_builder.speak(speech)
         return handler_input.response_builder.response
 
@@ -118,3 +111,14 @@ class ResponseLogger(AbstractResponseInterceptor):
         logger.info("Response: {}".format(response))
 
 
+# used by all handlers
+def get_speech(prompt):
+    """Reads the response messages that are outsourced to a json file."""
+    with open('strings.json') as strings:
+        # read json
+        string_data = json.load(strings)
+        # select value list, value is a list of possible responses
+        prompt_list = string_data[prompt]
+        # select a random response from the value list
+        prompt = random.choice(prompt_list)
+    return prompt
