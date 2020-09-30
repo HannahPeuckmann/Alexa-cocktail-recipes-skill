@@ -156,27 +156,27 @@ Der Intent hat zwei Slots, den Slot 'request' und den Slot 'drink'. 'request' mu
 Ist der Slot 'drink' nicht gefüllt, wird also geprüft, ob bereits ein 'aktiver' Cocktail in den Session Attributen existiert. Ist dies der Fall, dann wird die Anfrage für diesen Cocktail gemacht. Existert kein Session Attribut und der Slot ist nicht von Benutzer*innen gefüllt worden, wird aus der Lambda-Funktion eine Rückfrage gestellt, um den Slot füllen zu lassen. \\
  Wird zum Beispiel aus dem RandomCocktailIntent in den AskForCocktailIntent delegiert, wenn Benutzer*innen die Zutaten für den vorgeschlagenen Cocktail wissen möchten, ist dieser in den Session Attributen gespeichert und muss nicht erneut genannt werden. \\
 Hat ein Cocktail keinen Eintrag in der Datenbank werden Benutzer*innen darüber informiert. \\
-\lstinputlisting[language=Python, firstline=70, lastline=116]{dm_projekt_flask.py}
+\lstinputlisting[language=Python, firstline=62, lastline=108]{dm_projekt_flask.py}
 
 \subsubsection{RandomCocktailIntent}
 Die Ausgabe des Intents ist der Name eines zufällig ausgewählten Cocktails der Datenbank. Der Intent hat keine Slots, die gefüllt werden müssen. TheCocktailDB bietet die Möglichkeit eines API-Aufrufs für einen zufälligen Cocktail. Nach dem Triggern des RandomCocktailIntents, wird dieser API-Aufruf gemacht und das Session Attribut, das den aktuell aktiven Cocktail speichert, mit dem Namen des zufälligen Cocktails aktualisiert. Im Speech-Output des Intents wird dieser Cocktail genannt, sowie gefragt, ob Interesse daran besteht. Die Antwort auf diese Frage triggert dann einen der von Amazon bereits eingebauten Intents: YesIntent oder NoIntent. In dem Fall, dass der YesIntent nach dem RandomCocktailIntent getriggert wird, delegiert die Lambda-Funktion zum AskForCocktailIntent. Dieser ist dann für den weiteren Dialog zuständig.  \\
-\lstinputlisting[language=Python, firstline=318, lastline=346]{dm_projekt_flask.py}
+\lstinputlisting[language=Python, firstline=310, lastline=338]{dm_projekt_flask.py}
 
 \subsubsection{IngredientDescriptionIntent}
 Der Intent gibt eine kurze Beschreibung einer Zutat aus. Der Intent hat einen slot 'ingredient\_drink', dieser ist obligatorisch. Hat die Zutat keinen Eintrag in der Datenbank, werden die Benutzer*innen darüber informiert. Die Beschreibungstexte in der Datembank sind teilweise sehr lang. Aus dem Grund wird der Text in Sätze aufgesplittet und nur maximal die ersten drei Sätze werden als Antwort ausgegeben. \\
-\lstinputlisting[language=Python, firstline=349, lastline=386]{dm_projekt_flask.py}
+\lstinputlisting[language=Python, firstline=341, lastline=378]{dm_projekt_flask.py}
 
 \subsubsection{CocktailWithIngredientIntent}
 Der CocktailWithIngredientIntent dient zum Filtern der Cocktails nach Zutaten. Es werden zwei Slots, 'ingredient\_one' und 'ingredient\_two', benötigt, um den Intent zu erfüllen. Da die API keine freie Funktion zum Filtern mit mehreren Zutaten anbietet, muss für beide Zutaten ein seperater API-Aufruf zum Cocktail-Filtern gemacht werden. Dann wird die Schnittmenge der beiden resultierenden Cocktail-Listen gebildet und als Session Attribut gespeichert. Die Ausgabe des Intents ist die Information, wie viele Cocktails gefunden wurden, mit der Frage, ob eine Auswahl von drei Cocktails aufgelistet werden soll. Die User*innen sollen mit der Anwort dann entweder den YesIntent oder NoIntent triggern. Wird der YesIntent folgend auf den CocktailWithIngredientIntent aufgerufen, werden aus der Cocktail-Liste in den Session Attributen drei Cocktails zufällig ausgewählt und den User*innen aufgezählt. Ist nur ein Cocktail gefunden worden, wird dieser zum neuen aktiven Cocktail in den Session Attributen. \\
-\lstinputlisting[language=Python, firstline=231, lastline=271]{dm_projekt_flask.py}
+\lstinputlisting[language=Python, firstline=223, lastline=263]{dm_projekt_flask.py}
 
 \subsubsection{NonAlcoholicCocktailIntent}
 Der NonAlcoholicCocktailIntent filtert Cocktails, die nicht-alkoholisch sind und eine gewünschte Zutat enthalten. Die Funktionsweise ist somit die gleiche, wie die des CocktailWithIngredientIntents, mit dem Unterschied, dass es nur einen Slot gibt, der gefüllt werden muss. Da der API-Aufruf für eine Auflistung von nicht-alkoholischen Cocktails immer gleich ist und hartcodiert werden kann, braucht man nur den Wert des Slots 'ingredient', um den zweiten Filter anzuwenden. Die Liste der resultierenden Cocktails ist dann, wie beim Cocktail-With-Ingredient-Intent, die Schnittmenge von nicht-alkoholischen Cocktails und den Cocktails mit der genannten Zutat und wird als Session Attribut gespeichert. Ist nur ein Cocktail gefunden worden, wird dieser ebenfalls zum neuen aktiven Cocktail. Die Ausgabe des Intents ist ebenso die Anzahl der gefundenen Cocktails, sowie die Frage, ob eine Auswahl von drei aufgezählt werden soll, was die User*innen zum Aufruf des Yes- oder des No-Intents leiten soll. Der YesIntent gibt eine zufällige Auflistung von drei Cocktails der Liste in den Session Attributen aus. \\
-\lstinputlisting[language=Python, firstline=274, lastline=315]{dm_projekt_flask.py}
+\lstinputlisting[language=Python, firstline=266, lastline=307]{dm_projekt_flask.py}
 
 \subsubsection{GlassIntent}
 Der Intent gibt eine kurze Information darüber aus, in welchem Glas ein Cocktail üblicherweise serviert wird. Der Intent hat zwei Slots, die beide nicht obligatorisch sind. Der Intent arbeitet ebenfalls mit Session Atributen, ist der Slot 'drink' nicht gefüllt wird auf das Session Attribut mit dem aktiven Cocktail zurückgegriffen, falls dieses existiert. Ist der Slot nicht gefüllt und es existert kein Session Attribut, wird der Slot gefüllt, indem aus der Lambda-Funktion eine Nachfrage an die Benutzer*innen gestellt wird. Dieser Cocktail ist dann der aktive Cocktail. Hat die Datenbank die gewünschten Informationen nicht, werden die Benutzer*innen darüber informiert. \\
-\lstinputlisting[language=Python, firstline=187, lastline=228]{dm_projekt_flask.py}
+\lstinputlisting[language=Python, firstline=179, lastline=220]{dm_projekt_flask.py}
 
 \subsubsection{MeasureIntent}
 Der MeasureIntent dient zur Ausgabe der Menge einer einzelnen Zutat, die für einen spezifischen Cocktail benötigt wird.
@@ -185,32 +185,32 @@ Dieser Slot repräsentiert die Zutat, für die die Menge erfragt wird. Der 'drin
 falls kein Session Attribut 'drink' existiert, das den aktiven Cocktail gespeichert hat.
 Die Lambda-Funktion macht einen API-Aufruf mit dem Cocktailnamen und extrahiert die zugehörige Menge der erfragten Zutat.
 Wenn ein Wert eingetragen ist, wird dieser ausgeben. Ist dies nicht der Fall, wird ausgegeben, dass die Zutat nach belieben verwendet werden kann. \\
-\lstinputlisting[language=Python, firstline=119, lastline=184]{dm_projekt_flask.py}
+\lstinputlisting[language=Python, firstline=111, lastline=176]{dm_projekt_flask.py}
 
 \subsection{Eingebaute Intents}
 \subsubsection{YesMoreInfoIntent}
 Der Build-in AMAZON.YesIntent wird einerseits aktiv, wenn Benutzer*innen im RandomCocktailIntent weitere Informationen über den vorgeschlagenen Cocktail haben möchten. Dann delegiert der YesMoreInfoIntent an den AskForCocktailIntent weiter, mit dem Cocktail aus dem RandomCocktailIntent gespeichert als aktiver Cocktail. Andererseits übernimmt der Intent, wenn in einem der beiden filternden Intents (CocktailWithIngredientIntent und NonAlcoholicCocktailIntent) Benutzer*innen bestätigen, dass sie die gefundenen Cocktails ausgegeben haben möchten. Dann sucht der Intent drei zufällige Cocktails heraus, vorrausgesetzt es wurden mehr als drei gefunden, andernfalls werden lediglich die gefundenen ausgegeben. Ist nur ein Cocktail gefunden worden, so wird dieser zum aktiven Cocktail. \\
-\lstinputlisting[language=Python, firstline=389, lastline=423]{dm_projekt_flask.py}
+\lstinputlisting[language=Python, firstline=381, lastline=415]{dm_projekt_flask.py}
 
 \subsubsection{NoMoreInfoIntent}
 Der Build-in AMAZON.NoIntent wird aktiv, wenn Benutzer*innen keine weiteren Informationen über den aktuell aktiven Cocktail erhalten möchten. Der Intent gibt lediglich eine kurze Reaktion aus "Okay, maybe next time" oder eine kurze Synopsis über die weiteren Funktionalitäten des Skills. \\
-\lstinputlisting[language=Python, firstline=426, lastline=438]{dm_projekt_flask.py}
+\lstinputlisting[language=Python, firstline=418, lastline=430]{dm_projekt_flask.py}
  
 \subsubsection{RepeatIntent}
 Der Build-in AMAZON.RepeatIntent ist dafür zuständig, die letzte von Alexa gegebene Antwort zu wiederholen. Dazu wird gecheckt ob ein Session Attribut mit der zuletzt geäußerten Antwort vorhanden ist und gibt diese wieder. Ist kein Session Attribut vorhanden, was bedeutet es wurde noch keine Antwort von Alexa innerhalb der aktuellen Session gegeben, werden Benutzer*innen darüber informiert. \\
-\lstinputlisting[language=Python, firstline=441, lastline=457]{dm_projekt_flask.py}
+\lstinputlisting[language=Python, firstline=433, lastline=449]{dm_projekt_flask.py}
 
 \subsubsection{HelpIntent}
 Der Built-in Intent AMAZON.Help ist dafür zuständig die User*innen bei der richtigen Nutzung des Skills zu unterstützen. \\
-\lstinputlisting[language=Python, firstline=27, lastline=38]{basic_handlers.py}
+\lstinputlisting[language=Python, firstline=26, lastline=37]{basic_handlers.py}
 
 \subsubsection{CancelIntent, StopIntent}
 Die Built-in Intent AMAZON.Cancel und AMAZON.Stop dienen zum Beenden des Skills. \\
-\lstinputlisting[language=Python, firstline=41, lastline=53]{basic_handlers.py}
+\lstinputlisting[language=Python, firstline=40, lastline=52]{basic_handlers.py}
 
 \subsubsection{FallbackIntent}
 Der Built-in Intent AMAZON.FallbackIntent hilft User*innen mit einem Reprompt, falls deren Input nicht zugeordnet werden kann.\\
-\lstinputlisting[language=Python, firstline=56, lastline=71]{basic_handlers.py}
+\lstinputlisting[language=Python, firstline=55, lastline=70]{basic_handlers.py}
 
 
 \section{Projektabschluss, Evaluation}
@@ -553,5 +553,5 @@ Insgesamt werden 17 Requests gestellt (abgesehen vom Launch Request), bei 8 Requ
 
 \subsection{Ausblick}
 In den Tests wird deutlich, dass ein wichtiger Punkt für ein problemloses Auslösen der gewünschten Intents und somit einen flüssigen Dialog, ein umfangreiches Interaktionsmodell ist. \\Es wäre sinnvoll mehr Tests durchzuführen, in denen die Testpersonen nicht auf bestimmte Formulierungen geprimet sind, um möglichst viele Formulierungen zu finden und in das Interaktionsmodell einbinden zu können. Dafür könnte man mit mehr Slots arbeiten, um nicht alle Formulierungen 'hartcodieren' zu müssen, sondern in weniger Beispiel-Utterances mehr Formulierungskombinationen abdecken zu können. \\ Von den Funktionalitäten her deckt der Skill die meisten, von Benutzer*innen gewünschten ab. Die Datenbank nach weiteren Kriterien filtern zu können wäre aber eine sinnvolle Ergänzung. So wurde beispielsweise nach "einfachen" oder "süßen" Cocktails gefragt, oder nach Cocktails für spezielle Anlässe. Diesbezüglich sind wird jedoch limitiert durch die API. Das Implementieren solcher Filter wäre um einiges aufwändiger, als das bisherige Filtern nach Zutaten. \\Einfacher zu Implementieren, da in der Datenbank vermerkt, ist das Ausgeben des Alkoholgehaltes oder das Filtern der Datenbank nach Cocktails, die in einem bestimmten Glas serviert werden. \\ Eine Ergänzung zum MeasureIntent wäre das Berechnen der Zutatenmenge für eine bestimmte Personenanzahl, bzw. Cocktailanzahl.\\
-Bezüglich der Lambda-Funktion kann der Code in seiner Strukturierung noch verbessert werden, insbesondere was die Doppelung von Codestellen betrifft. In einigen Handlern wird sehr ähnlicher Code geschrieben. Durch mehr Hilfsfunktionen oder eine Hilfsklasse ließe sich eventuell ein allgemeinerer Handler schreiben oder die Handler sich auf den für sie spezifischen, essenziellen Code reduzieren. 
+Bezüglich der Lambda-Funktion kann der Code in seiner Strukturierung noch verbessert werden, insbesondere was die Doppelung von Codestellen betrifft. In einigen Handlern wird sehr ähnlicher Code geschrieben. Durch mehr Hilfsfunktionen oder eine Hilfsklasse ließe sich eventuell ein allgemeinerer Handler schreiben oder die Handler sich auf spezifischen, essenziellen Code reduzieren. 
 \end{document}

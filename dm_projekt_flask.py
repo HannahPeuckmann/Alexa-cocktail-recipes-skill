@@ -183,7 +183,7 @@ class GlassIntentHandler(AbstractRequestHandler):
         return is_intent_name('GlassIntent')(handler_input)
 
     def handle(self, handler_input):
-        logging.info('In GlassIntentHandler')
+        logger.info('In GlassIntentHandler')
         session_attr = handler_input.attributes_manager.session_attributes
         slot_values = get_slot_values(
             handler_input.request_envelope.request.intent.slots)
@@ -227,11 +227,11 @@ class CocktailWithIngredientIntentHandler(AbstractRequestHandler):
         return is_intent_name('CocktailWithIngredientIntent')(handler_input)
 
     def handle(self, handler_input):
-        logging.info('In CocktailWithIngredientIntentHandler')
+        logger.info('In CocktailWithIngredientIntentHandler')
         session_attr = handler_input.attributes_manager.session_attributes
         filled_slots = handler_input.request_envelope.request.intent.slots
         slot_values = get_slot_values(filled_slots)
-        logging.info(slot_values)
+        logger.info(slot_values)
         ingredient_1 = slot_values['ingredient_one']['resolved']
         ingredient_2 = slot_values['ingredient_two']['resolved']
         # api request for fist ingredient
@@ -270,13 +270,13 @@ class NonAlcoholicCocktailIntentHandler(AbstractRequestHandler):
         return is_intent_name('NonAlcoholicCocktailIntent')(handler_input)
 
     def handle(self, handler_input):
-        logging.info('In NonAlcoholicCocktailIntentHandler')
+        logger.info('In NonAlcoholicCocktailIntentHandler')
         session_attr = handler_input.attributes_manager.session_attributes
         filled_slots = handler_input.request_envelope.request.intent.slots
         slot_values = get_slot_values(filled_slots)
         # ingredient to filter non alcoholic cocktails
         ingredient = slot_values['ingredient']['resolved']
-        logging.info(slot_values)
+        logger.info(slot_values)
         # all cocktail that contain the ingredient
         api_request_i = build_url(api,
                                   'filter',
@@ -356,7 +356,7 @@ class IngredientDescriptionIntentHandler(AbstractRequestHandler):
                                 api_keyword=ingredient)
         try:
             response = http_get(api_request)
-            logging.info(response)
+            logger.info(response)
             # split description text into sentences to be able to response
             # only with the first three sentences
             description = sent_tokenize(
@@ -681,4 +681,4 @@ def invoke_skill():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
